@@ -2,71 +2,77 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Plantões - Seguranças</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Registro de Plantões - Silo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 100%;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             overflow: hidden;
         }
 
         .header {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            padding: 30px;
+            padding: 20px 15px;
             text-align: center;
         }
 
         .header h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
+            font-size: 1.5em;
+            margin-bottom: 5px;
             font-weight: 600;
         }
 
         .header p {
             opacity: 0.9;
-            font-size: 1.1em;
+            font-size: 0.9em;
         }
 
         .content {
-            padding: 30px;
+            padding: 15px;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             color: #333;
             font-weight: 600;
-            font-size: 1.1em;
+            font-size: 0.95em;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 1em;
             transition: all 0.3s;
         }
@@ -79,23 +85,24 @@
         .shift-selector {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .shift-card {
-            padding: 20px;
-            border: 3px solid #e0e0e0;
-            border-radius: 15px;
+            padding: 15px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
             cursor: pointer;
             text-align: center;
             transition: all 0.3s;
             background: #f8f9fa;
+            font-size: 0.9em;
         }
 
         .shift-card:hover:not(.disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
 
         .shift-card.active {
@@ -103,101 +110,108 @@
             background: linear-gradient(135deg, #1e3c7220, #2a529820);
         }
 
-        .shift-card.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #f0f0f0;
-        }
-
         .shift-card h3 {
             color: #333;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            font-size: 1em;
         }
 
         .shift-card p {
             color: #666;
-            font-size: 0.9em;
+            font-size: 0.75em;
+            line-height: 1.2;
         }
 
         .shift-info {
-            margin-top: 10px;
-            padding: 8px;
+            margin-top: 5px;
+            padding: 5px;
             background: white;
-            border-radius: 8px;
-            font-size: 0.8em;
+            border-radius: 5px;
+            font-size: 0.7em;
             color: #2a5298;
             font-weight: bold;
         }
 
         .calendar-container {
-            margin-top: 20px;
+            margin-top: 15px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .month-navigation {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding: 15px;
+            margin-bottom: 10px;
+            padding: 10px;
             background: #f8f9fa;
-            border-radius: 10px;
+            border-radius: 8px;
+            min-width: 280px;
         }
 
         .month-navigation button {
             background: #2a5298;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 8px 15px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.85em;
             transition: all 0.3s;
+            white-space: nowrap;
         }
 
         .month-navigation button:hover {
             background: #1e3c72;
-            transform: scale(1.05);
         }
 
         .month-title {
-            font-size: 1.3em;
+            font-size: 1.1em;
             font-weight: bold;
             color: #333;
+            text-align: center;
+            flex: 1;
+        }
+
+        .calendar-wrapper {
+            min-width: 320px;
+            overflow-x: auto;
         }
 
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
+            gap: 3px;
+            min-width: 310px;
         }
 
         .day-header {
             text-align: center;
             font-weight: bold;
             color: #2a5298;
-            padding: 10px;
-            font-size: 0.9em;
+            padding: 8px 2px;
+            font-size: 0.75em;
         }
 
         .day {
             aspect-ratio: 1;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             position: relative;
             background: white;
-            min-height: 100px;
-            padding: 5px;
+            min-height: 45px;
+            padding: 2px;
         }
 
         .day:hover:not(.disabled):not(.occupied):not(.my-occupied) {
             transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .day.selected {
@@ -221,15 +235,14 @@
             border-color: #ef5350;
             color: #c62828;
             cursor: not-allowed;
-            position: relative;
         }
 
         .day.occupied::after {
             content: '✕';
             position: absolute;
-            top: 5px;
-            right: 5px;
-            font-size: 0.8em;
+            top: 2px;
+            right: 2px;
+            font-size: 0.6em;
             color: #c62828;
             font-weight: bold;
         }
@@ -238,32 +251,31 @@
             background: #e3f2fd;
             border-color: #2196f3;
             color: #1565c0;
-            cursor: pointer;
         }
 
         .day.my-occupied::after {
             content: '✓';
             position: absolute;
-            top: 5px;
-            right: 5px;
-            font-size: 0.8em;
+            top: 2px;
+            right: 2px;
+            font-size: 0.6em;
             color: #1565c0;
             font-weight: bold;
         }
 
         .day-number {
-            font-size: 1.1em;
+            font-size: 0.9em;
             font-weight: bold;
         }
 
         .day-hours {
-            font-size: 0.75em;
-            margin-top: 4px;
+            font-size: 0.6em;
+            margin-top: 1px;
             color: #2a5298;
             font-weight: bold;
             background: rgba(42, 82, 152, 0.1);
-            padding: 2px 6px;
-            border-radius: 10px;
+            padding: 1px 3px;
+            border-radius: 4px;
         }
 
         .day.selected .day-hours {
@@ -274,72 +286,74 @@
         .day.my-occupied .day-hours {
             background: transparent;
             color: inherit;
-            font-size: 0.7em;
+            font-size: 0.55em;
         }
 
         .occupied-by {
-            font-size: 0.65em;
-            margin-top: 2px;
+            font-size: 0.5em;
+            margin-top: 1px;
             text-align: center;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            max-width: 90%;
+            max-width: 95%;
             color: #c62828;
         }
 
         .summary {
-            margin-top: 30px;
-            padding: 25px;
+            margin-top: 15px;
+            padding: 15px;
             background: linear-gradient(135deg, #1e3c7210, #2a529810);
-            border-radius: 15px;
-            border-left: 5px solid #2a5298;
+            border-radius: 10px;
+            border-left: 4px solid #2a5298;
         }
 
         .summary h3 {
             color: #333;
-            margin-bottom: 15px;
-            font-size: 1.3em;
+            margin-bottom: 10px;
+            font-size: 1em;
         }
 
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
         }
 
         .summary-item {
             display: flex;
             justify-content: space-between;
-            padding: 12px;
+            padding: 8px;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-size: 0.85em;
         }
 
         .summary-item.total {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
-            font-size: 1.1em;
+            font-size: 0.95em;
             font-weight: bold;
+            grid-column: span 2;
         }
 
         .detail-list {
-            margin-top: 15px;
-            max-height: 200px;
+            margin-top: 10px;
+            max-height: 150px;
             overflow-y: auto;
             background: white;
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 0.8em;
         }
 
         .detail-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px;
+            padding: 5px;
             border-bottom: 1px solid #eee;
-            font-size: 0.9em;
         }
 
         .detail-item:last-child {
@@ -349,19 +363,20 @@
         .btn-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 25px;
+            gap: 10px;
+            margin-top: 15px;
         }
 
         .btn-submit, .btn-pdf {
-            padding: 18px;
+            padding: 12px;
             border: none;
-            border-radius: 12px;
-            font-size: 1.2em;
+            border-radius: 8px;
+            font-size: 0.95em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            white-space: nowrap;
         }
 
         .btn-submit {
@@ -375,12 +390,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 5px;
         }
 
         .btn-submit:hover, .btn-pdf:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .btn-submit:disabled, .btn-pdf:disabled {
@@ -391,11 +406,12 @@
 
         .occupied-info {
             background: #ffebee;
-            border-left: 4px solid #ef5350;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            border-left: 3px solid #ef5350;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
             display: none;
+            font-size: 0.85em;
         }
 
         .occupied-info.show {
@@ -404,44 +420,45 @@
 
         .occupied-info h4 {
             color: #c62828;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
         }
 
         .occupied-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 5px;
         }
 
         .occupied-tag {
             background: #ef5350;
             color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.85em;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
         }
 
         .legend {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
             flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
             justify-content: center;
-            font-size: 0.85em;
+            font-size: 0.7em;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 3px;
             color: #666;
         }
 
         .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 5px;
-            border: 2px solid #e0e0e0;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            border: 1px solid #e0e0e0;
         }
 
         .legend-color.selected {
@@ -466,14 +483,14 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
             text-align: center;
             z-index: 1000;
             animation: slideIn 0.3s ease-out;
             max-width: 90%;
-            width: 400px;
+            width: 320px;
         }
 
         @keyframes slideIn {
@@ -499,53 +516,67 @@
         }
 
         .check-icon {
-            font-size: 60px;
+            font-size: 50px;
             color: #4CAF50;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .pdf-content {
             display: none;
-            padding: 40px;
+            padding: 30px;
             background: white;
             font-family: Arial, sans-serif;
+            max-width: 800px;
         }
 
         .pdf-header {
             text-align: center;
             border-bottom: 3px solid #1e3c72;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .pdf-header h1 {
             color: #1e3c72;
-            font-size: 24px;
-            margin-bottom: 10px;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .pdf-posto {
+            background: #1e3c72;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
         }
 
         .pdf-info {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .pdf-info-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 10px;
+            margin-bottom: 8px;
+            padding: 8px;
             background: #f8f9fa;
-            border-radius: 5px;
+            border-radius: 4px;
+            font-size: 0.95em;
         }
 
         .pdf-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
+            font-size: 0.9em;
         }
 
         .pdf-table th, .pdf-table td {
             border: 1px solid #ddd;
-            padding: 12px;
+            padding: 8px;
             text-align: left;
         }
 
@@ -560,23 +591,23 @@
         }
 
         .pdf-summary {
-            margin-top: 30px;
-            padding: 20px;
+            margin-top: 20px;
+            padding: 15px;
             background: #f0f0f0;
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
         .pdf-footer {
-            margin-top: 40px;
+            margin-top: 30px;
             text-align: center;
             color: #666;
-            font-size: 0.9em;
+            font-size: 0.85em;
             border-top: 1px solid #ddd;
-            padding-top: 20px;
+            padding-top: 15px;
         }
 
         .signature-area {
-            margin-top: 60px;
+            margin-top: 40px;
             display: flex;
             justify-content: space-between;
         }
@@ -584,39 +615,72 @@
         .signature-line {
             width: 45%;
             border-top: 1px solid #333;
-            padding-top: 10px;
+            padding-top: 8px;
             text-align: center;
-            font-size: 0.9em;
+            font-size: 0.85em;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 400px) {
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
             .shift-selector {
                 grid-template-columns: 1fr;
+            }
+            
+            .calendar-wrapper {
+                min-width: 280px;
+            }
+            
+            .calendar {
+                min-width: 270px;
+            }
+            
+            .day {
+                min-height: 40px;
+            }
+            
+            .day-number {
+                font-size: 0.8em;
+            }
+            
+            .day-hours {
+                font-size: 0.55em;
             }
             
             .btn-group {
                 grid-template-columns: 1fr;
             }
             
-            .calendar {
-                gap: 4px;
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-item.total {
+                grid-column: span 1;
+            }
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .container {
+                max-width: 900px;
+            }
+            
+            .content {
+                padding: 30px;
+            }
+            
+            .calendar-wrapper {
+                min-width: 100%;
             }
             
             .day {
                 min-height: 80px;
-            }
-            
-            .day-number {
-                font-size: 0.9em;
-            }
-            
-            .day-hours {
-                font-size: 0.65em;
-                padding: 1px 4px;
-            }
-            
-            .occupied-by {
-                font-size: 0.6em;
             }
         }
     </style>
@@ -625,13 +689,13 @@
     <div class="container" id="appContainer">
         <div class="header">
             <h1>🛡️ Registro de Plantões</h1>
-            <p>Sistema de Reserva de Dias - Seguranças</p>
+            <p>Posto: Silo | Sistema de Reserva de Dias</p>
         </div>
 
         <div class="content">
             <div class="form-group">
-                <label for="employeeName">👤 Nome Completo do Segurança</label>
-                <input type="text" id="employeeName" placeholder="Digite seu nome completo..." autocomplete="name">
+                <label for="employeeName">👤 Nome Completo</label>
+                <input type="text" id="employeeName" placeholder="Digite seu nome..." autocomplete="name">
             </div>
 
             <div class="form-group">
@@ -639,19 +703,19 @@
                 <div class="shift-selector">
                     <div class="shift-card" onclick="selectShift('day')" id="shift-day">
                         <h3>☀️ Diurno</h3>
-                        <p>Alternância: 6h-19h (13h) ↔ 7h-18h (11h)</p>
-                        <div class="shift-info" id="day-hours-info">Selecione para ver detalhes</div>
+                        <p>6h-19h (13h) ↔ 7h-18h (11h)</p>
+                        <div class="shift-info" id="day-hours-info">Selecione</div>
                     </div>
                     <div class="shift-card" onclick="selectShift('night')" id="shift-night">
                         <h3>🌙 Noturno</h3>
-                        <p>12 horas fixas (19h-7h / 18h-6h)</p>
+                        <p>12 horas fixas</p>
                         <div class="shift-info" id="night-hours-info">12h fixas</div>
                     </div>
                 </div>
             </div>
 
             <div class="occupied-info" id="occupiedInfo">
-                <h4>⚠️ Dias já ocupados por outros seguranças:</h4>
+                <h4>⚠️ Dias ocupados:</h4>
                 <div class="occupied-list" id="occupiedList"></div>
             </div>
 
@@ -662,60 +726,62 @@
                     <button onclick="changeMonth(1)">Próximo →</button>
                 </div>
 
-                <div class="calendar" id="calendar"></div>
+                <div class="calendar-wrapper">
+                    <div class="calendar" id="calendar"></div>
+                </div>
 
                 <div class="legend">
                     <div class="legend-item">
                         <div class="legend-color selected"></div>
-                        <span>Selecionado agora</span>
+                        <span>Selecionado</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color my-occupied"></div>
-                        <span>Meus dias salvos</span>
+                        <span>Meus dias</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color occupied"></div>
-                        <span>Ocupado por outro</span>
+                        <span>Ocupado</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background: white; border-color: #e0e0e0;"></div>
-                        <span>Disponível</span>
+                        <div class="legend-color" style="background: white;"></div>
+                        <span>Livre</span>
                     </div>
                 </div>
             </div>
 
             <div class="summary" id="summary">
-                <h3>📊 Resumo do Período</h3>
+                <h3>📊 Resumo</h3>
                 <div class="summary-grid">
                     <div class="summary-item">
-                        <span>Dias com 11h:</span>
+                        <span>Dias 11h:</span>
                         <span id="days11h">0</span>
                     </div>
                     <div class="summary-item">
-                        <span>Dias com 13h:</span>
+                        <span>Dias 13h:</span>
                         <span id="days13h">0</span>
                     </div>
                     <div class="summary-item">
-                        <span>Dias com 12h:</span>
+                        <span>Dias 12h:</span>
                         <span id="days12h">0</span>
                     </div>
                     <div class="summary-item total">
-                        <span>Total de Horas:</span>
+                        <span>Total:</span>
                         <span id="totalHours">0h</span>
                     </div>
                 </div>
                 <div id="detailList" class="detail-list" style="display: none;">
-                    <h4 style="margin-bottom: 10px; color: #333;">Detalhamento:</h4>
+                    <h4 style="margin-bottom: 8px; color: #333; font-size: 0.9em;">Detalhamento:</h4>
                     <div id="detailContent"></div>
                 </div>
             </div>
 
             <div class="btn-group">
                 <button class="btn-submit" onclick="submitReport()">
-                    💾 Salvar Registro
+                    💾 Salvar
                 </button>
                 <button class="btn-pdf" onclick="exportPDF()" id="btnPdf" disabled>
-                    📄 Exportar PDF
+                    📄 PDF
                 </button>
             </div>
         </div>
@@ -723,8 +789,9 @@
 
     <div id="pdfContent" class="pdf-content">
         <div class="pdf-header">
-            <h1>RELATÓRIO DE PLANTÕES - SEGURANÇAS</h1>
-            <p>Controle de Horas Trabalhadas</p>
+            <h1>RELATÓRIO DE PLANTÕES</h1>
+            <div class="pdf-posto">POSTO DE TRABALHO: SILO</div>
+            <p>Controle de Horas - Seguranças</p>
         </div>
 
         <div class="pdf-info">
@@ -733,8 +800,523 @@
                 <span id="pdfName"></span>
             </div>
             <div class="pdf-info-row">
+                <strong>Posto:</strong>
+                <span>Silo</span>
+            </div>
+            <div class="pdf-info-row">
                 <strong>Turno:</strong>
                 <span id="pdfShift"></span>
             </div>
             <div class="pdf-info-row">
-                <strong>Data de Emissão:</
+                <strong>Data de Emissão:</strong>
+                <span id="pdfDate"></span>
+            </div>
+            <div class="pdf-info-row">
+                <strong>Mês de Referência:</strong>
+                <span id="pdfMonth"></span>
+            </div>
+        </div>
+
+        <table class="pdf-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Dia</th>
+                    <th>Turno</th>
+                    <th>Horário</th>
+                    <th>Horas</th>
+                </tr>
+            </thead>
+            <tbody id="pdfTableBody">
+            </tbody>
+        </table>
+
+        <div class="pdf-summary">
+            <h3>Resumo Final</h3>
+            <p><strong>Total de Dias:</strong> <span id="pdfTotalDays">0</span></p>
+            <p><strong>Dias 11h:</strong> <span id="pdfDays11">0</span> | <strong>Dias 12h:</strong> <span id="pdfDays12">0</span> | <strong>Dias 13h:</strong> <span id="pdfDays13">0</span></p>
+            <p style="font-size: 1.1em; margin-top: 10px; color: #1e3c72;"><strong>Total de Horas: <span id="pdfTotalHours">0</span></strong></p>
+        </div>
+
+        <div class="signature-area">
+            <div class="signature-line">
+                Assinatura do Segurança
+            </div>
+            <div class="signature-line">
+                Assinatura do Supervisor
+            </div>
+        </div>
+
+        <div class="pdf-footer">
+            <p>Documento gerado automaticamente - Posto Silo</p>
+            <p>Este relatório é válido sem necessidade de assinatura quando acompanhado do comprovante digital.</p>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="success-message" id="successMessage">
+        <div class="check-icon">✓</div>
+        <h2>Salvo!</h2>
+        <p>Registro realizado com sucesso.</p>
+        <div style="margin-top: 10px; text-align: left; background: #f5f5f5; padding: 12px; border-radius: 8px; font-size: 0.9em;">
+            <p><strong>Resumo:</strong></p>
+            <p>11h: <span id="success11h" style="color: #1e3c72; font-weight: bold;">0</span></p>
+            <p>13h: <span id="success13h" style="color: #1e3c72; font-weight: bold;">0</span></p>
+            <p>Total: <span id="successTotal" style="color: #2a5298; font-weight: bold;">0h</span></p>
+        </div>
+        <button onclick="closeSuccess()" style="margin-top: 15px; padding: 10px 30px; background: #2a5298; color: white; border: none; border-radius: 6px; cursor: pointer;">Fechar</button>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        let selectedShift = null;
+        let selectedDays = new Map();
+        let isSaved = false;
+        let mySavedDays = new Map();
+        
+        const REFERENCE_DATE = new Date(2026, 2, 22);
+        
+        const shiftNames = {
+            day: 'Diurno',
+            night: 'Noturno'
+        };
+
+        const shiftTimes = {
+            11: '07:00 - 18:00',
+            12: '19:00 - 07:00',
+            13: '06:00 - 19:00'
+        };
+
+        function getGlobalOccupiedDays() {
+            const stored = localStorage.getItem('occupiedDays');
+            return stored ? new Map(JSON.parse(stored)) : new Map();
+        }
+
+        function saveGlobalOccupiedDays(occupiedMap) {
+            localStorage.setItem('occupiedDays', JSON.stringify(Array.from(occupiedMap.entries())));
+        }
+
+        function init() {
+            renderCalendar();
+            updateOccupiedInfo();
+        }
+
+        function selectShift(shift) {
+            selectedShift = shift;
+            document.querySelectorAll('.shift-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.getElementById(`shift-${shift}`).classList.add('active');
+            updateShiftInfo();
+            renderCalendar();
+            updateSummary();
+        }
+
+        function updateShiftInfo() {
+            if (!selectedShift) return;
+            
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+            
+            let count11 = 0, count13 = 0, count12 = 0;
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const hours = calculateHoursForDate(currentYear, currentMonth, day, selectedShift);
+                if (hours === 11) count11++;
+                else if (hours === 13) count13++;
+                else if (hours === 12) count12++;
+            }
+            
+            if (selectedShift === 'day') {
+                document.getElementById('day-hours-info').textContent = 
+                    `${count11} dias (11h) + ${count13} dias (13h)`;
+            }
+        }
+
+        function calculateHoursForDate(year, month, day, shift) {
+            const checkDate = new Date(year, month, day);
+            const diffTime = checkDate - REFERENCE_DATE;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (shift === 'day') {
+                if (Math.abs(diffDays) % 2 === 0) {
+                    return 13;
+                } else {
+                    return 11;
+                }
+            } else {
+                return 12;
+            }
+        }
+
+        function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            renderCalendar();
+            updateShiftInfo();
+            updateOccupiedInfo();
+        }
+
+        function updateOccupiedInfo() {
+            const occupied = getGlobalOccupiedDays();
+            const currentName = document.getElementById('employeeName').value.trim();
+            const occupiedList = document.getElementById('occupiedList');
+            const occupiedInfo = document.getElementById('occupiedInfo');
+            
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const monthPrefix = `${year}-${month}`;
+            
+            const monthOccupied = [];
+            occupied.forEach((data, key) => {
+                if (key.startsWith(monthPrefix) && data.name !== currentName) {
+                    const day = key.split('-')[2];
+                    monthOccupied.push({day, name: data.name});
+                }
+            });
+            
+            if (monthOccupied.length > 0) {
+                occupiedInfo.classList.add('show');
+                occupiedList.innerHTML = monthOccupied
+                    .sort((a, b) => a.day - b.day)
+                    .map(o => `<span class="occupied-tag">Dia ${o.day} - ${o.name.split(' ')[0]}</span>`)
+                    .join('');
+            } else {
+                occupiedInfo.classList.remove('show');
+            }
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const currentName = document.getElementById('employeeName').value.trim();
+            
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                              'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            
+            document.getElementById('monthTitle').textContent = `${monthNames[month]} ${year}`;
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startingDay = firstDay.getDay();
+            
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+            
+            const dayHeaders = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            dayHeaders.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'day-header';
+                header.textContent = day;
+                calendar.appendChild(header);
+            });
+            
+            for (let i = 0; i < startingDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day disabled';
+                calendar.appendChild(emptyDay);
+            }
+            
+            const today = new Date();
+            const occupied = getGlobalOccupiedDays();
+            
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dayElement = document.createElement('div');
+                const dateKey = `${year}-${month}-${day}`;
+                const hours = selectedShift ? calculateHoursForDate(year, month, day, selectedShift) : '-';
+                
+                const isOccupied = occupied.has(dateKey);
+                const isMyOccupied = isOccupied && occupied.get(dateKey).name === currentName;
+                const isSelected = selectedDays.has(dateKey);
+                
+                if (isMyOccupied) {
+                    dayElement.className = 'day my-occupied';
+                    dayElement.onclick = () => alert('Dia já salvo no seu registro.');
+                } else if (isOccupied) {
+                    dayElement.className = 'day occupied';
+                    const occupant = occupied.get(dateKey).name;
+                    dayElement.onclick = () => alert(`Reservado por ${occupant.split(' ')[0]}`);
+                } else if (isSelected) {
+                    dayElement.className = 'day selected';
+                    dayElement.onclick = () => toggleDay(year, month, day, dayElement, hours);
+                } else {
+                    dayElement.className = 'day';
+                    dayElement.onclick = () => toggleDay(year, month, day, dayElement, hours);
+                }
+                
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = day;
+                dayElement.appendChild(dayNumber);
+                
+                if (selectedShift && !isOccupied) {
+                    const dayHours = document.createElement('div');
+                    dayHours.className = 'day-hours';
+                    dayHours.textContent = hours + 'h';
+                    dayElement.appendChild(dayHours);
+                }
+                
+                if (isOccupied && !isMyOccupied) {
+                    const occupant = occupied.get(dateKey).name;
+                    const occupiedBy = document.createElement('div');
+                    occupiedBy.className = 'occupied-by';
+                    occupiedBy.textContent = occupant.split(' ')[0];
+                    dayElement.appendChild(occupiedBy);
+                }
+                
+                if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                    dayElement.style.border = '2px solid #2a5298';
+                }
+                
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        function toggleDay(year, month, day, element, hours) {
+            if (!selectedShift) {
+                alert('Selecione seu turno primeiro!');
+                return;
+            }
+            
+            const dateKey = `${year}-${month}-${day}`;
+            const occupied = getGlobalOccupiedDays();
+            
+            if (occupied.has(dateKey) && occupied.get(dateKey).name !== document.getElementById('employeeName').value.trim()) {
+                alert('Dia já reservado!');
+                return;
+            }
+            
+            if (selectedDays.has(dateKey)) {
+                selectedDays.delete(dateKey);
+                element.classList.remove('selected');
+            } else {
+                selectedDays.set(dateKey, {
+                    shift: selectedShift,
+                    hours: hours,
+                    date: new Date(year, month, day)
+                });
+                element.classList.add('selected');
+            }
+            
+            isSaved = false;
+            document.getElementById('btnPdf').disabled = true;
+            updateSummary();
+        }
+
+        function updateSummary() {
+            let total11 = 0, total13 = 0, total12 = 0;
+            let totalHours = 0;
+            const details = [];
+            
+            const allDays = new Map([...mySavedDays, ...selectedDays]);
+            
+            allDays.forEach((data, key) => {
+                if (data.hours === 11) total11++;
+                else if (data.hours === 13) total13++;
+                else if (data.hours === 12) total12++;
+                
+                totalHours += data.hours;
+                
+                const date = data.date;
+                const dateStr = date.toLocaleDateString('pt-BR');
+                const shiftName = data.shift === 'day' ? 'Diurno' : 'Noturno';
+                const isNew = selectedDays.has(key) ? ' ✨' : '';
+                details.push(`${dateStr}: ${shiftName} (${data.hours}h)${isNew}`);
+            });
+            
+            document.getElementById('days11h').textContent = total11;
+            document.getElementById('days13h').textContent = total13;
+            document.getElementById('days12h').textContent = total12;
+            document.getElementById('totalHours').textContent = totalHours + 'h';
+            
+            const detailList = document.getElementById('detailList');
+            const detailContent = document.getElementById('detailContent');
+            
+            if (details.length > 0) {
+                detailList.style.display = 'block';
+                detailContent.innerHTML = details
+                    .sort((a, b) => {
+                        const dateA = new Date(a.split(':')[0].split('/').reverse().join('-'));
+                        const dateB = new Date(b.split(':')[0].split('/').reverse().join('-'));
+                        return dateA - dateB;
+                    })
+                    .map(d => `<div class="detail-item">${d}</div>`)
+                    .join('');
+            } else {
+                detailList.style.display = 'none';
+            }
+        }
+
+        function validateForm() {
+            const name = document.getElementById('employeeName').value.trim();
+            
+            if (!name) {
+                alert('Digite seu nome!');
+                document.getElementById('employeeName').focus();
+                return false;
+            }
+            
+            if (!selectedShift) {
+                alert('Selecione seu turno!');
+                return false;
+            }
+            
+            if (selectedDays.size === 0) {
+                alert('Selecione pelo menos um dia!');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function submitReport() {
+            if (!validateForm()) return;
+            
+            const name = document.getElementById('employeeName').value.trim();
+            const occupied = getGlobalOccupiedDays();
+            
+            let conflict = false;
+            selectedDays.forEach((data, key) => {
+                if (occupied.has(key) && occupied.get(key).name !== name) {
+                    conflict = true;
+                    alert(`Dia ${key.split('-')[2]} reservado por ${occupied.get(key).name.split(' ')[0]}`);
+                }
+            });
+            
+            if (conflict) {
+                renderCalendar();
+                return;
+            }
+            
+            selectedDays.forEach((data, key) => {
+                occupied.set(key, {
+                    name: name,
+                    shift: data.shift,
+                    hours: data.hours,
+                    timestamp: new Date().toISOString()
+                });
+            });
+            
+            saveGlobalOccupiedDays(occupied);
+            
+            selectedDays.forEach((data, key) => {
+                mySavedDays.set(key, data);
+            });
+            selectedDays.clear();
+            
+            let total11 = 0, total13 = 0, total12 = 0, totalHours = 0;
+            mySavedDays.forEach(data => {
+                if (data.hours === 11) total11++;
+                else if (data.hours === 13) total13++;
+                else if (data.hours === 12) total12++;
+                totalHours += data.hours;
+            });
+            
+            document.getElementById('success11h').textContent = total11;
+            document.getElementById('success13h').textContent = total13;
+            document.getElementById('successTotal').textContent = totalHours + 'h';
+            
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'block';
+            
+            isSaved = true;
+            document.getElementById('btnPdf').disabled = false;
+            
+            renderCalendar();
+            updateOccupiedInfo();
+            updateSummary();
+        }
+
+        function exportPDF() {
+            if (!isSaved || mySavedDays.size === 0) {
+                alert('Salve o registro primeiro!');
+                return;
+            }
+            
+            const name = document.getElementById('employeeName').value.trim();
+            
+            document.getElementById('pdfName').textContent = name;
+            document.getElementById('pdfShift').textContent = shiftNames[selectedShift] || 'Misto';
+            document.getElementById('pdfDate').textContent = new Date().toLocaleDateString('pt-BR');
+            
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                              'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            document.getElementById('pdfMonth').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            const tbody = document.getElementById('pdfTableBody');
+            tbody.innerHTML = '';
+            
+            const sortedDays = Array.from(mySavedDays.entries())
+                .sort((a, b) => a[1].date - b[1].date);
+            
+            let total11 = 0, total13 = 0, total12 = 0, totalHours = 0;
+            const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            
+            sortedDays.forEach(([key, data]) => {
+                const row = document.createElement('tr');
+                
+                if (data.hours === 11) total11++;
+                else if (data.hours === 13) total13++;
+                else if (data.hours === 12) total12++;
+                totalHours += data.hours;
+                
+                row.innerHTML = `
+                    <td>${data.date.toLocaleDateString('pt-BR')}</td>
+                    <td>${weekDays[data.date.getDay()]}</td>
+                    <td>${shiftNames[data.shift]}</td>
+                    <td>${shiftTimes[data.hours]}</td>
+                    <td>${data.hours}h</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('pdfTotalDays').textContent = mySavedDays.size;
+            document.getElementById('pdfDays11').textContent = total11;
+            document.getElementById('pdfDays12').textContent = total12;
+            document.getElementById('pdfDays13').textContent = total13;
+            document.getElementById('pdfTotalHours').textContent = totalHours + ' horas';
+            
+            const element = document.getElementById('pdfContent');
+            const opt = {
+                margin: [10, 10],
+                filename: `Plantao_Silo_${name.replace(/\s+/g, '_')}_${currentDate.getMonth()+1}_${currentDate.getFullYear()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function closeSuccess() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        document.getElementById('employeeName').addEventListener('input', function() {
+            const name = this.value.trim();
+            const occupied = getGlobalOccupiedDays();
+            
+            mySavedDays.clear();
+            occupied.forEach((data, key) => {
+                if (data.name === name) {
+                    const [year, month, day] = key.split('-').map(Number);
+                    mySavedDays.set(key, {
+                        shift: data.shift,
+                        hours: data.hours,
+                        date: new Date(year, month, day)
+                    });
+                }
+            });
+            
+            updateSummary();
+            renderCalendar();
+            updateOccupiedInfo();
+        });
+
+        // Inicializa ao carregar
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
