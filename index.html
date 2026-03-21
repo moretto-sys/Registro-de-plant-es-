@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Plantões - Seguranças</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+
+        .shift-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .shift-card {
+            padding: 20px;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .shift-card:hover:not(.disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .shift-card.active {
+            border-color: #2a5298;
+            background: linear-gradient(135deg, #1e3c7220, #2a529820);
+        }
+
+        .shift-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f0f0f0;
+        }
+
+        .shift-card h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .shift-card p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .shift-info {
+            margin-top: 10px;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.8em;
+            color: #2a5298;
+            font-weight: bold;
+        }
+
+        .calendar-container {
+            margin-top: 20px;
+        }
+
+        .month-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .month-navigation button {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .month-navigation button:hover {
+            background: #1e3c72;
+            transform: scale(1.05);
+        }
+
+        .month-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-header {
+            text-align: center;
+            font-weight: bold;
+            color: #2a5298;
+            padding: 10px;
+            font-size: 0.9em;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            background: white;
+            min-height: 100px;
+            padding: 5px;
+        }
+
+        .day:hover:not(.disabled):not(.occupied):not(.my-occupied) {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .day.selected {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            border-color: #1e3c72;
+        }
+
+        .day.selected .day-hours {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .day.disabled {
+            background: #f0f0f0;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .day.occupied {
+            background: #ffebee;
+            border-color: #ef5350;
+            color: #c62828;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .day.occupied::after {
+            content: '✕';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.8em;
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .day.my-occupied {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            color: #1565c0;
+            cursor: pointer;
+        }
+
+        .day.my-occupied::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.8em;
+            color: #1565c0;
+            font-weight: bold;
+        }
+
+        .day-number {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .day-hours {
+            font-size: 0.75em;
+            margin-top: 4px;
+            color: #2a5298;
+            font-weight: bold;
+            background: rgba(42, 82, 152, 0.1);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .day.selected .day-hours {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .day.occupied .day-hours,
+        .day.my-occupied .day-hours {
+            background: transparent;
+            color: inherit;
+            font-size: 0.7em;
+        }
+
+        .occupied-by {
+            font-size: 0.65em;
+            margin-top: 2px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 90%;
+            color: #c62828;
+        }
+
+        .summary {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #1e3c7210, #2a529810);
+            border-radius: 15px;
+            border-left: 5px solid #2a5298;
+        }
+
+        .summary h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .summary-item.total {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .detail-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn-submit, .btn-pdf {
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover, .btn-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-submit:disabled, .btn-pdf:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .occupied-info {
+            background: #ffebee;
+            border-left: 4px solid #ef5350;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .occupied-info.show {
+            display: block;
+        }
+
+        .occupied-info h4 {
+            color: #c62828;
+            margin-bottom: 10px;
+        }
+
+        .occupied-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .occupied-tag {
+            background: #ef5350;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 0.85em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .legend-color.selected {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-color: #1e3c72;
+        }
+
+        .legend-color.occupied {
+            background: #ffebee;
+            border-color: #ef5350;
+        }
+
+        .legend-color.my-occupied {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .success-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            max-width: 90%;
+            width: 400px;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .check-icon {
+            font-size: 60px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .pdf-content {
+            display: none;
+            padding: 40px;
+            background: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .pdf-header {
+            text-align: center;
+            border-bottom: 3px solid #1e3c72;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .pdf-header h1 {
+            color: #1e3c72;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .pdf-info {
+            margin-bottom: 30px;
+        }
+
+        .pdf-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .pdf-table th, .pdf-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .pdf-table th {
+            background: #1e3c72;
+            color: white;
+            font-weight: bold;
+        }
+
+        .pdf-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .pdf-summary {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .pdf-footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+
+        .signature-area {
+            margin-top: 60px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-line {
+            width: 45%;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 600px) {
+            .shift-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar {
+                gap: 4px;
+            }
+            
+            .day {
+                min-height: 80px;
+            }
+            
+            .day-number {
+                font-size: 0.9em;
+            }
+            
+            .day-hours {
+                font-size: 0.65em;
+                padding: 1px 4px;
+            }
+            
+            .occupied-by {
+                font-size: 0.6em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="appContainer">
+        <div class="header">
+            <h1>🛡️ Registro de Plantões</h1>
+            <p>Sistema de Reserva de Dias - Seguranças</p>
+        </div>
+
+        <div class="content">
+            <div class="form-group">
+                <label for="employeeName">👤 Nome Completo do Segurança</label>
+                <input type="text" id="employeeName" placeholder="Digite seu nome completo..." autocomplete="name">
+            </div>
+
+            <div class="form-group">
+                <label>🔄 Selecione seu Turno</label>
+                <div class="shift-selector">
+                    <div class="shift-card" onclick="selectShift('day')" id="shift-day">
+                        <h3>☀️ Diurno</h3>
+                        <p>Alternância: 6h-19h (13h) ↔ 7h-18h (11h)</p>
+                        <div class="shift-info" id="day-hours-info">Selecione para ver detalhes</div>
+                    </div>
+                    <div class="shift-card" onclick="selectShift('night')" id="shift-night">
+                        <h3>🌙 Noturno</h3>
+                        <p>12 horas fixas (19h-7h / 18h-6h)</p>
+                        <div class="shift-info" id="night-hours-info">12h fixas</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="occupied-info" id="occupiedInfo">
+                <h4>⚠️ Dias já ocupados por outros seguranças:</h4>
+                <div class="occupied-list" id="occupiedList"></div>
+            </div>
+
+            <div class="calendar-container">
+                <div class="month-navigation">
+                    <button onclick="changeMonth(-1)">← Anterior</button>
+                    <div class="month-title" id="monthTitle"></div>
+                    <button onclick="changeMonth(1)">Próximo →</button>
+                </div>
+
+                <div class="calendar" id="calendar"></div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color selected"></div>
+                        <span>Selecionado agora</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color my-occupied"></div>
+                        <span>Meus dias salvos</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color occupied"></div>
+                        <span>Ocupado por outro</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: white; border-color: #e0e0e0;"></div>
+                        <span>Disponível</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary" id="summary">
+                <h3>📊 Resumo do Período</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span>Dias com 11h:</span>
+                        <span id="days11h">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Dias com 13h:</span>
+                        <span id="days13h">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Dias com 12h:</span>
+                        <span id="days12h">0</span>
+                    </div>
+                    <div class="summary-item total">
+                        <span>Total de Horas:</span>
+                        <span id="totalHours">0h</span>
+                    </div>
+                </div>
+                <div id="detailList" class="detail-list" style="display: none;">
+                    <h4 style="margin-bottom: 10px; color: #333;">Detalhamento:</h4>
+                    <div id="detailContent"></div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-submit" onclick="submitReport()">
+                    💾 Salvar Registro
+                </button>
+                <button class="btn-pdf" onclick="exportPDF()" id="btnPdf" disabled>
+                    📄 Exportar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pdfContent" class="pdf-content">
+        <div class="pdf-header">
+            <h1>RELATÓRIO DE PLANTÕES - SEGURANÇAS</h1>
+            <p>Controle de Horas Trabalhadas</p>
+        </div>
+
+        <div class="pdf-info">
+            <div class="pdf-info-row">
+                <strong>Segurança:</strong>
+                <span id="pdfName"></span>
+            </div>
+            <div class="pdf-info-row">
+                <strong>Turno:</strong>
+                <span id="pdfShift"></span>
+            </div>
+            <div class="pdf-info-row">
+                <strong>Data de Emissão:</
