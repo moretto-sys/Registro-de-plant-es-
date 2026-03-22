@@ -6,7 +6,6 @@
     <title>Registro Silo - Moretto</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* Interface Mobile */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', sans-serif; background: #1a2a6c; padding: 10px; color: #333; }
         .container { max-width: 480px; margin: 0 auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
@@ -18,36 +17,70 @@
         .btn-shift { padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; background: #f9f9f9; font-weight: bold; }
         .btn-shift.active { border-color: #1e3c72; background: #1e3c72; color: white; }
         .nav-month { display: flex; justify-content: space-between; align-items: center; background: #eee; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
-        .nav-month button { background: #1e3c72; color: white; border: none; padding: 5px 15px; border-radius: 4px; font-weight: bold; }
+        .nav-month button { background: #1e3c72; color: white; border: none; padding: 5px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
         .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
         .day { aspect-ratio: 1; border: 1px solid #eee; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; position: relative; }
-        
-        /* Cores para identificar turnos no calendário */
         .day.selected-Diurno { background: #ff9800; color: white; font-weight: bold; }
         .day.selected-Noturno { background: #1e3c72; color: white; font-weight: bold; }
         .day.selected-Ambos { background: linear-gradient(135deg, #ff9800 50%, #1e3c72 50%); color: white; font-weight: bold; }
-
         .total-box { background: #f4f4f4; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: center; font-size: 18px; border-left: 6px solid #1e3c72; }
-        .btn-main { width: 100%; padding: 18px; background: #e74c3c; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 15px; }
+        .btn-main { width: 100%; padding: 18px; background: #e74c3c; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; }
 
-        /* --- LAYOUT DO PDF CENTRALIZADO --- */
+        /* PDF */
         #pdf-render {
             display: none;
-            width: 800px;
-            margin: 0 auto;
-            padding: 60px;
+            width: 794px;
+            padding: 60px 70px;
             background: white;
-            color: black;
+            color: #111;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .pdf-title {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #1e3c72;
+            padding-bottom: 18px;
+        }
+        .pdf-title h1 { color: #1e3c72; font-size: 26px; margin-bottom: 6px; }
+        .pdf-title p { font-size: 15px; color: #444; }
+        .pdf-info {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin-bottom: 28px;
+            font-size: 15px;
+        }
+        .pdf-info div p { margin-bottom: 6px; }
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 28px;
+        }
+        .pdf-table th {
+            background: #1e3c72;
+            color: white;
+            padding: 10px 14px;
+            border: 1px solid #1e3c72;
+            font-size: 14px;
             text-align: center;
         }
-        .pdf-header { border-bottom: 3px solid #1e3c72; padding-bottom: 20px; margin-bottom: 30px; }
-        .pdf-info-grid { display: flex; justify-content: center; gap: 50px; margin-bottom: 30px; font-size: 16px; text-align: left; }
-        .pdf-table { width: 100%; border-collapse: collapse; margin: 0 auto 30px auto; }
-        .pdf-table th { background: #f2f2f2; color: #1e3c72; padding: 12px; border: 1px solid #333; }
-        .pdf-table td { padding: 10px; text-align: center; border: 1px solid #333; font-size: 14px; }
-        .pdf-summary { width: 100%; background: #f9f9f9; padding: 20px; border: 2px solid #1e3c72; font-size: 22px; margin: 20px auto 40px auto; }
-        .pdf-signatures { display: flex; justify-content: space-around; margin-top: 80px; }
-        .sig-box { width: 280px; border-top: 1px solid #000; text-align: center; padding-top: 10px; font-size: 14px; }
+        .pdf-table td {
+            padding: 9px 14px;
+            text-align: center;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+        .pdf-table tr:nth-child(even) td { background: #f5f7fb; }
+        .pdf-total {
+            text-align: center;
+            border: 2px solid #1e3c72;
+            background: #f0f4ff;
+            padding: 16px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e3c72;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body>
@@ -59,7 +92,7 @@
     </div>
     <div class="content">
         <label>Nome do Segurança</label>
-        <input type="text" id="userName" value="Moretto">
+        <input type="text" id="userName" placeholder="Coloque seu nome aqui">
 
         <label>Turno para Seleção</label>
         <div class="shift-grid">
@@ -68,9 +101,9 @@
         </div>
 
         <div class="nav-month">
-            <button onclick="navMonth(-1)"> < </button>
+            <button onclick="navMonth(-1)"> &lt; </button>
             <span id="monthDisplay" style="font-weight: bold;"></span>
-            <button onclick="navMonth(1)"> > </button>
+            <button onclick="navMonth(1)"> &gt; </button>
         </div>
 
         <div class="calendar" id="calendar"></div>
@@ -81,20 +114,20 @@
     </div>
 </div>
 
+<!-- PDF oculto para renderização -->
 <div id="pdf-render">
-    <div class="pdf-header">
-        <h1 style="color: #1e3c72; font-size: 28px; margin-bottom: 5px;">RELATÓRIO DE PLANTÕES</h1>
-        [span_4](start_span)<p style="font-size: 16px; color: #444;">POSTO DE TRABALHO: <b>SILO</b>[span_4](end_span)</p>
+    <div class="pdf-title">
+        <h1>RELATÓRIO DE PLANTÕES</h1>
+        <p>POSTO DE TRABALHO: <b>SILO</b></p>
     </div>
 
-    <div class="pdf-info-grid">
+    <div class="pdf-info">
         <div>
-            [span_5](start_span)<p><b>Segurança:</b> <span id="p-name"></span>[span_5](end_span)</p>
-            [span_6](start_span)<p><b>Mês/Ano:</b> <span id="p-ref"></span>[span_6](end_span)</p>
+            <p><b>Segurança:</b> <span id="p-name"></span></p>
+            <p><b>Referência:</b> <span id="p-ref"></span></p>
         </div>
         <div>
-            [span_7](start_span)<p><b>Emissão:</b> <span id="p-emit"></span>[span_7](end_span)</p>
-            [span_8](start_span)<p><b>Posto:</b> SILO[span_8](end_span)</p>
+            <p><b>Emissão:</b> <span id="p-emit"></span></p>
         </div>
     </div>
 
@@ -111,31 +144,27 @@
         <tbody id="p-body"></tbody>
     </table>
 
-    <div class="pdf-summary">
-        [span_9](start_span)<b>SOMATÓRIA FINAL: <span id="p-total"></span> HORAS</b>[span_9](end_span)
-    </div>
-
-    <div class="pdf-signatures">
-        <div class="sig-box">Assinatura do Funcionário</div>
-        <div class="sig-box">Supervisor Responsável</div>
+    <div class="pdf-total">
+        TOTAL: <span id="p-total"></span> HORAS
     </div>
 </div>
 
 <script>
     let date = new Date();
     let currentSelectedShift = 'Diurno';
-    let selectedRecords = new Map(); // Chave será "YYYY-MM-DD-Shift"
+    // Chave: "YYYY-M-D-Shift" — permite mesmo dia com turnos diferentes
+    let selectedRecords = new Map();
     const REF_DATE = new Date(2026, 2, 22);
 
     function updateShift(s) {
         currentSelectedShift = s;
-        document.getElementById('shift-day').className = 'btn-shift ' + (s==='Diurno'?'active':'');
-        document.getElementById('shift-night').className = 'btn-shift ' + (s==='Noturno'?'active':'');
+        document.getElementById('shift-day').className = 'btn-shift ' + (s === 'Diurno' ? 'active' : '');
+        document.getElementById('shift-night').className = 'btn-shift ' + (s === 'Noturno' ? 'active' : '');
         render();
     }
 
     function calcH(y, m, d, s) {
-        if(s === 'Noturno') return 12;
+        if (s === 'Noturno') return 12;
         const dt = new Date(y, m, d);
         const diff = Math.floor((dt - REF_DATE) / 86400000);
         return (Math.abs(diff) % 2 === 0) ? 13 : 11;
@@ -149,31 +178,32 @@
         const cal = document.getElementById('calendar');
         cal.innerHTML = '';
         const start = new Date(y, m, 1).getDay();
-        const total = new Date(y, m+1, 0).getDate();
+        const total = new Date(y, m + 1, 0).getDate();
 
-        for(let i=0; i<start; i++) cal.innerHTML += '<div></div>';
-        for(let d=1; d<=total; d++) {
+        for (let i = 0; i < start; i++) cal.innerHTML += '<div></div>';
+
+        for (let d = 1; d <= total; d++) {
             const keyDay = `${y}-${m}-${d}`;
             const keyRecord = `${keyDay}-${currentSelectedShift}`;
-            
+
             const hasDiurno = selectedRecords.has(`${keyDay}-Diurno`);
             const hasNoturno = selectedRecords.has(`${keyDay}-Noturno`);
-            
+
             let statusClass = '';
-            if(hasDiurno && hasNoturno) statusClass = 'selected-Ambos';
-            else if(hasDiurno) statusClass = 'selected-Diurno';
-            else if(hasNoturno) statusClass = 'selected-Noturno';
+            if (hasDiurno && hasNoturno) statusClass = 'selected-Ambos';
+            else if (hasDiurno) statusClass = 'selected-Diurno';
+            else if (hasNoturno) statusClass = 'selected-Noturno';
 
             const h = calcH(y, m, d, currentSelectedShift);
             const div = document.createElement('div');
             div.className = `day ${statusClass}`;
-            div.innerHTML = `<b>${d}</b><span style="font-size:9px">${currentSelectedShift === 'Diurno' ? h+'h' : '12h'}</span>`;
-            
+            div.innerHTML = `<b>${d}</b><span style="font-size:9px">${currentSelectedShift === 'Diurno' ? h + 'h' : '12h'}</span>`;
+
             div.onclick = () => {
-                if(selectedRecords.has(keyRecord)) {
+                if (selectedRecords.has(keyRecord)) {
                     selectedRecords.delete(keyRecord);
                 } else {
-                    selectedRecords.set(keyRecord, {d, m, y, h, s: currentSelectedShift});
+                    selectedRecords.set(keyRecord, { d, m, y, h, s: currentSelectedShift });
                 }
                 render();
                 updateTotal();
@@ -183,51 +213,60 @@
     }
 
     function updateTotal() {
-        let t = 0; selectedRecords.forEach(v => t += v.h);
+        let t = 0;
+        // Soma todas as entradas independente — Diurno e Noturno no mesmo dia somam separado
+        selectedRecords.forEach(v => t += v.h);
         document.getElementById('totalH').innerText = t;
     }
 
-    function navMonth(v) { date.setMonth(date.getMonth() + v); render(); }
+    function navMonth(v) {
+        date.setMonth(date.getMonth() + v);
+        render();
+    }
 
     async function processPDF() {
-        const name = document.getElementById('userName').value;
-        if(selectedRecords.size === 0) return alert("Selecione os plantões!");
+        const name = document.getElementById('userName').value.trim();
+        if (selectedRecords.size === 0) return alert("Selecione os plantões!");
 
         document.getElementById('p-name').innerText = name;
         document.getElementById('p-emit').innerText = new Date().toLocaleDateString('pt-BR');
         document.getElementById('p-ref').innerText = document.getElementById('monthDisplay').innerText;
-        
+
         const tbody = document.getElementById('p-body');
         tbody.innerHTML = '';
-        
-        // Ordenar registros por data e depois por turno (Diurno antes de Noturno)
-        const sorted = Array.from(selectedRecords.values()).sort((a,b) => {
-            if(a.d !== b.d) return a.d - b.d;
+
+        // Ordena: por dia, depois Diurno antes de Noturno
+        const sorted = Array.from(selectedRecords.values()).sort((a, b) => {
+            if (a.y !== b.y) return a.y - b.y;
+            if (a.m !== b.m) return a.m - b.m;
+            if (a.d !== b.d) return a.d - b.d;
             return a.s === 'Diurno' ? -1 : 1;
         });
-        
+
+        let totalHoras = 0;
         sorted.forEach(i => {
             const dt = new Date(i.y, i.m, i.d);
-            const diaSem = dt.toLocaleDateString('pt-BR', {weekday:'long'}).replace("-feira", "");
-            const horario = i.s === 'Noturno' ? '19:00 - 07:00' : (i.h === 13 ? '06:00 - 19:00' : '07:00 - 18:00');
+            const diaSem = dt.toLocaleDateString('pt-BR', { weekday: 'long' }).replace('-feira', '');
+            const horario = i.s === 'Noturno' ? '19:00 – 07:00' : (i.h === 13 ? '06:00 – 19:00' : '07:00 – 18:00');
+            totalHoras += i.h;
             tbody.innerHTML += `<tr>
-                <td>${i.d.toString().padStart(2, '0')}/${(i.m+1).toString().padStart(2, '0')}</td>
-                <td style="text-transform: capitalize;">${diaSem}</td>
+                <td>${i.d.toString().padStart(2, '0')}/${(i.m + 1).toString().padStart(2, '0')}/${i.y}</td>
+                <td style="text-transform:capitalize">${diaSem}</td>
                 <td>${i.s}</td>
                 <td>${horario}</td>
                 <td><b>${i.h}h</b></td>
             </tr>`;
         });
 
-        document.getElementById('p-total').innerText = document.getElementById('totalH').innerText;
+        document.getElementById('p-total').innerText = totalHoras;
 
         const element = document.getElementById('pdf-render');
         element.style.display = 'block';
-        
+
         const opt = {
             margin: 10,
             filename: `Relatorio_Silo_${name}.pdf`,
-            html2canvas: { scale: 2, width: 800, windowWidth: 800 },
+            html2canvas: { scale: 2, width: 794, windowWidth: 794 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
