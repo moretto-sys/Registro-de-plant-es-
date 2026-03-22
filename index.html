@@ -173,7 +173,7 @@
             border-radius: 18px 18px 0 0;
             width: 100%;
             max-width: 480px;
-            max-height: 85dvh;
+            max-height: 95dvh;  /* AUMENTADO de 85dvh para 95dvh */
             display: flex;
             flex-direction: column;
             box-shadow: 0 -6px 30px rgba(0,0,0,0.3);
@@ -203,6 +203,7 @@
             flex: 1;
             overflow: hidden;
             display: flex;
+            min-height: 50dvh;  /* ADICIONADO: altura mínima para garantir espaço de visualização */
         }
         .txt-output {
             width: 100%;
@@ -211,11 +212,12 @@
             border-radius: 8px;
             padding: 12px;
             font-family: monospace;
-            font-size: 13px;
+            font-size: 14px;  /* AUMENTADO de 13px para 14px */
             resize: none;
             color: #222;
             background: #fafafa;
             line-height: 1.7;
+            min-height: 100%;  /* ADICIONADO: garante que ocupe todo espaço disponível */
         }
         .modal-footer {
             padding: 10px 14px 20px;
@@ -327,6 +329,15 @@
         return (Math.abs(diff) % 2 === 0) ? 13 : 11;
     }
 
+    // NOVA FUNÇÃO: Retorna o horário noturno baseado no dia ímpar/par
+    function getHorarioNoturno(dia) {
+        if (dia % 2 === 1) {
+            return { inicio: '18h', fim: '06h', label: '18h-06h' }; // Ímpar
+        } else {
+            return { inicio: '19h', fim: '07h', label: '19h-07h' }; // Par
+        }
+    }
+
     function render() {
         const y = date.getFullYear(), m = date.getMonth();
         const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
@@ -352,9 +363,17 @@
             else if (hasNoturno) cls = 'selected-Noturno';
 
             const h   = calcH(y, m, d, currentSelectedShift);
+            
+            // LÓGICA MODIFICADA: Verifica turno e aplica horário correspondente
+            let horarioMini;
+            if (currentSelectedShift === 'Noturno') {
+                horarioMini = getHorarioNoturno(d).label;
+            } else {
+                horarioMini = h === 13 ? '06h-19h' : '07h-18h';
+            }
+
             const div = document.createElement('div');
             div.className = `day ${cls}`;
-            const horarioMini = currentSelectedShift === 'Noturno' ? '19h-07h' : (h === 13 ? '06h-19h' : '07h-18h');
             div.innerHTML = `<b>${d}</b><span>${currentSelectedShift === 'Diurno' ? h + 'h' : '12h'}</span><span style="font-size:7px;opacity:0.85;letter-spacing:-0.3px">${horarioMini}</span>`;
 
             div.onclick = () => {
@@ -410,7 +429,15 @@
                              .replace('.','').replace('-feira','');
             const data   = `${i.d.toString().padStart(2,'0')}/${(i.m+1).toString().padStart(2,'0')}`;
             const icon   = i.s === 'Diurno' ? '☀️' : '🌙';
-            const horario = i.s === 'Noturno' ? '19h–07h' : (i.h === 13 ? '06h–19h' : '07h–18h');
+            
+            // LÓGICA MODIFICADA: Aplica horário noturno correto no relatório
+            let horario;
+            if (i.s === 'Noturno') {
+                horario = getHorarioNoturno(i.d).label.replace('-', '–');
+            } else {
+                horario = i.h === 13 ? '06h–19h' : '07h–18h';
+            }
+            
             txt += `${icon} ${data} (${diaSem}) | ${i.s} | ${horario} | *${i.h}h*\n`;
             totalH += i.h;
         });
