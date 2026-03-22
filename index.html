@@ -6,123 +6,146 @@
     <title>Registro Silo - Moretto</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* Estilos da Interface Mobile */
+        /* Interface Mobile */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', sans-serif; background: #1e3c72; padding: 10px; }
-        .container { max-width: 480px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .header { background: #1e3c72; color: white; padding: 15px; text-align: center; }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a2a6c; padding: 10px; color: #333; }
+        .container { max-width: 480px; margin: 0 auto; background: white; border-radius: 15px; overflow: hidden; shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .header { background: linear-gradient(to right, #1e3c72, #2a5298); color: white; padding: 20px; text-align: center; }
         .content { padding: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #1e3c72; }
         input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 15px; font-size: 16px; }
         .shift-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .btn-shift { padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; background: #f9f9f9; font-weight: bold; }
-        .btn-shift.active { border-color: #1e3c72; background: #eef2f7; color: #1e3c72; }
-        .nav-month { display: flex; justify-content: space-between; align-items: center; background: #eee; padding: 8px; border-radius: 8px; margin-bottom: 10px; }
-        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
-        .day { aspect-ratio: 1; border: 1px solid #eee; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
-        .day.selected { background: #1e3c72; color: white; }
-        .total-info { background: #f4f4f4; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: center; font-weight: bold; border-left: 5px solid #1e3c72; }
-        .btn-export { width: 100%; padding: 15px; background: #e74c3c; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 15px; }
+        .btn-shift { padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; background: #f9f9f9; font-weight: bold; transition: 0.3s; }
+        .btn-shift.active { border-color: #1e3c72; background: #1e3c72; color: white; }
+        .nav-month { display: flex; justify-content: space-between; align-items: center; background: #eee; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .nav-month button { background: #1e3c72; color: white; border: none; padding: 5px 15px; border-radius: 4px; font-weight: bold; }
+        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .day { aspect-ratio: 1; border: 1px solid #eee; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .day.selected { background: #1e3c72; color: white; border-color: #1e3c72; font-weight: bold; }
+        .total-box { background: #f4f4f4; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: center; font-size: 18px; border-left: 6px solid #1e3c72; }
+        .btn-main { width: 100%; padding: 18px; background: #e74c3c; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 15px; box-shadow: 0 4px 0 #c0392b; }
+        .btn-main:active { transform: translateY(2px); box-shadow: none; }
 
-        /* --- ESTRUTURA DO PDF PADRONIZADA (OCULTA NO CELULAR) --- */
+        /* --- LAYOUT DO PDF (ESTILO A4 CENTRALIZADO) --- */
         #pdf-render {
             display: none;
-            width: 700px;
-            padding: 30px;
+            width: 800px; /* Largura fixa para renderização perfeita */
+            margin: 0 auto;
+            padding: 50px;
             background: white;
             color: black;
-            font-family: Arial, sans-serif;
         }
-        .pdf-header { text-align: center; border-bottom: 3px solid #1e3c72; padding-bottom: 10px; margin-bottom: 20px; }
-        .pdf-info-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-size: 14px; }
-        .pdf-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .pdf-table th { background: #1e3c72; color: white; padding: 10px; font-size: 12px; border: 1px solid #333; }
-        .pdf-table td { padding: 8px; text-align: center; border: 1px solid #333; font-size: 12px; }
-        .pdf-footer { margin-top: 20px; padding: 15px; background: #f0f0f0; border: 1px solid #ccc; }
-        .pdf-signatures { margin-top: 50px; display: flex; justify-content: space-between; }
-        .sig-line { width: 40%; border-top: 1px solid black; text-align: center; padding-top: 5px; font-size: 12px; }
+        .pdf-content-wrapper { width: 100%; margin: 0 auto; }
+        .pdf-header { text-align: center; border-bottom: 3px solid #1e3c72; padding-bottom: 15px; margin-bottom: 30px; }
+        .pdf-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; font-size: 16px; }
+        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .pdf-table th { background: #1e3c72; color: white; padding: 12px; border: 1px solid #333; }
+        .pdf-table td { padding: 10px; text-align: center; border: 1px solid #333; }
+        .pdf-summary { background: #f0f0f0; padding: 20px; border: 2px solid #1e3c72; text-align: center; font-size: 20px; margin-bottom: 40px; }
+        .pdf-signatures { display: flex; justify-content: space-around; margin-top: 60px; }
+        .sig-box { width: 250px; border-top: 1px solid #000; text-align: center; padding-top: 8px; font-size: 14px; }
+
+        /* MODAL WHATSAPP */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; }
+        .modal-card { background: white; width: 85%; max-width: 350px; margin: 30% auto; padding: 25px; border-radius: 15px; text-align: center; }
+        .btn-wa { display: block; background: #25D366; color: white; padding: 15px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header"><h3>Posto Silo - Moretto</h3></div>
+    <div class="header">
+        <h2>Posto Silo</h2>
+        <p>Registro de Plantão - Moretto</p>
+    </div>
     <div class="content">
-        <label>Nome do Segurança:</label>
-        <input type="text" id="name" value="Moretto">
+        <label>Nome do Segurança</label>
+        <input type="text" id="userName" value="Moretto">
 
-        <label>Turno:</label>
+        <label>Selecione o Turno</label>
         <div class="shift-grid">
-            <div class="btn-shift" id="s-day" onclick="selectShift('Diurno')">Diurno</div>
-            <div class="btn-shift" id="s-night" onclick="selectShift('Noturno')">Noturno</div>
+            <div class="btn-shift active" id="shift-day" onclick="updateShift('Diurno')">Diurno</div>
+            <div class="btn-shift" id="shift-night" onclick="updateShift('Noturno')">Noturno</div>
         </div>
 
         <div class="nav-month">
-            <button onclick="changeMonth(-1)"><b> < </b></button>
-            <span id="labelMonth" style="font-weight: bold;"></span>
-            <button onclick="changeMonth(1)"><b> > </b></button>
+            <button onclick="navMonth(-1)"> < </button>
+            <span id="monthDisplay" style="font-weight: bold;"></span>
+            <button onclick="navMonth(1)"> > </button>
         </div>
 
-        <div class="calendar" id="cal"></div>
+        <div class="calendar" id="calendar"></div>
 
-        <div class="total-info">
-            Total Mensal: <span id="totalH">0</span> horas
+        <div class="total-box">
+            Total do Mês: <b id="totalH">0</b> horas
         </div>
 
-        <button class="btn-export" onclick="downloadPDF()">📄 GERAR RELATÓRIO PDF</button>
+        <button class="btn-main" onclick="processPDF()">📄 GERAR E ENVIAR RELATÓRIO</button>
     </div>
 </div>
 
 <div id="pdf-render">
-    <div class="pdf-header">
-        <h1 style="margin: 0; color: #1e3c72;">RELATÓRIO DE PLANTÕES</h1>
-        <p style="margin: 5px 0;">Posto de Trabalho: SILO</p>
+    <div class="pdf-content-wrapper">
+        <div class="pdf-header">
+            <h1 style="color: #1e3c72; font-size: 32px; margin-bottom: 5px;">RELATÓRIO MENSAL DE PLANTÃO</h1>
+            <p style="font-size: 18px; color: #555;">POSTO DE TRABALHO: <b>SILO</b></p>
+        </div>
+
+        <div class="pdf-info-grid">
+            <p><b>Segurança:</b> <span id="p-name"></span></p>
+            <p><b>Data de Emissão:</b> <span id="p-emit"></span></p>
+            <p><b>Turno Selecionado:</b> <span id="p-shift"></span></p>
+            <p><b>Mês de Referência:</b> <span id="p-ref"></span></p>
+        </div>
+
+        <table class="pdf-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Dia da Semana</th>
+                    <th>Horário Previsto</th>
+                    <th>Total Horas</th>
+                </tr>
+            </thead>
+            <tbody id="p-body"></tbody>
+        </table>
+
+        <div class="pdf-summary">
+            <b>SOMATÓRIA TOTAL: <span id="p-total"></span> HORAS</b>
+        </div>
+
+        <div class="pdf-signatures">
+            <div class="sig-box">Assinatura do Funcionário</div>
+            <div class="sig-box">Assinatura do Supervisor</div>
+        </div>
+        
+        <p style="text-align: center; margin-top: 40px; font-size: 12px; color: #888;">Documento gerado digitalmente via Sistema de Plantão Silo</p>
     </div>
+</div>
 
-    <div class="pdf-info-box">
-        <div><b>Segurança:</b> <span id="p-name"></span></div>
-        <div><b>Data de Emissão:</b> <span id="p-emit"></span></div>
-        <div><b>Turno:</b> <span id="p-shift"></span></div>
-        <div><b>Mês de Referência:</b> <span id="p-ref"></span></div>
-    </div>
-
-    <table class="pdf-table">
-        <thead>
-            <tr>
-                <th>Data</th>
-                <th>Dia</th>
-                <th>Turno</th>
-                <th>Horário</th>
-                <th>Carga Horária</th>
-            </tr>
-        </thead>
-        <tbody id="p-table"></tbody>
-    </table>
-
-    <div class="pdf-footer">
-        <p style="font-size: 16px; margin: 0;"><b>SOMATÓRIA FINAL: <span id="p-total"></span> HORAS</b></p>
-    </div>
-
-    <div class="pdf-signatures">
-        <div class="sig-line">Assinatura do Segurança</div>
-        <div class="sig-line">Assinatura Supervisor</div>
+<div id="waModal" class="modal">
+    <div class="modal-card">
+        <h3 style="color: #1e3c72;">PDF Concluído!</h3>
+        <p style="margin-top: 10px; color: #666;">O arquivo foi baixado. Agora, clique no botão abaixo para informar no WhatsApp.</p>
+        <a href="#" id="waLink" class="btn-wa">AVISAR NO WHATSAPP</a>
+        <button onclick="document.getElementById('waModal').style.display='none'" style="margin-top: 15px; border: none; background: none; color: #999; text-decoration: underline;">Fechar</button>
     </div>
 </div>
 
 <script>
-    let currDate = new Date();
+    let date = new Date();
     let shift = 'Diurno';
-    let selectedDays = new Map();
+    let selected = new Map();
     const REF_DATE = new Date(2026, 2, 22);
 
-    function selectShift(s) {
+    function updateShift(s) {
         shift = s;
-        document.getElementById('s-day').className = 'btn-shift ' + (s==='Diurno'?'active':'');
-        document.getElementById('s-night').className = 'btn-shift ' + (s==='Noturno'?'active':'');
+        document.getElementById('shift-day').className = 'btn-shift ' + (s==='Diurno'?'active':'');
+        document.getElementById('shift-night').className = 'btn-shift ' + (s==='Noturno'?'active':'');
         render();
     }
 
-    function calcHours(y, m, d) {
+    function calcH(y, m, d) {
         if(shift === 'Noturno') return 12;
         const dt = new Date(y, m, d);
         const diff = Math.floor((dt - REF_DATE) / 86400000);
@@ -130,83 +153,93 @@
     }
 
     function render() {
-        const y = currDate.getFullYear(), m = currDate.getMonth();
+        const y = date.getFullYear(), m = date.getMonth();
         const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-        document.getElementById('labelMonth').innerText = months[m] + " " + y;
+        document.getElementById('monthDisplay').innerText = months[m] + " " + y;
 
-        const cal = document.getElementById('cal');
+        const cal = document.getElementById('calendar');
         cal.innerHTML = '';
         const start = new Date(y, m, 1).getDay();
-        const days = new Date(y, m+1, 0).getDate();
+        const total = new Date(y, m+1, 0).getDate();
 
         for(let i=0; i<start; i++) cal.innerHTML += '<div></div>';
-        for(let d=1; d<=days; d++) {
+        for(let d=1; d<=total; d++) {
             const key = `${y}-${m}-${d}`;
-            const h = calcHours(y, m, d);
-            const isS = selectedDays.has(key);
+            const h = calcH(y, m, d);
+            const isS = selected.has(key);
             const div = document.createElement('div');
             div.className = 'day ' + (isS?'selected':'');
-            div.innerHTML = `<b>${d}</b><span style="font-size:9px">${h}h</span>`;
+            div.innerHTML = `<b>${d}</b><span style="font-size:10px">${h}h</span>`;
             div.onclick = () => {
-                isS ? selectedDays.delete(key) : selectedDays.set(key, {d, m, y, h});
+                isS ? selected.delete(key) : selected.set(key, {d, m, y, h});
                 render();
-                updateSum();
+                updateTotal();
             };
             cal.appendChild(div);
         }
     }
 
-    function updateSum() {
-        let t = 0;
-        selectedDays.forEach(v => t += v.h);
+    function updateTotal() {
+        let t = 0; selected.forEach(v => t += v.h);
         document.getElementById('totalH').innerText = t;
     }
 
-    function changeMonth(v) { currDate.setMonth(currDate.getMonth() + v); render(); }
+    function navMonth(v) { date.setMonth(date.getMonth() + v); render(); }
 
-    async function downloadPDF() {
-        const name = document.getElementById('name').value;
-        if(selectedDays.size === 0) return alert("Selecione os dias!");
+    async function processPDF() {
+        const name = document.getElementById('userName').value;
+        if(selected.size === 0) return alert("Selecione os dias no calendário!");
 
-        [span_2](start_span)[span_3](start_span)// Preenche o PDF Oculto[span_2](end_span)[span_3](end_span)
+        // Preencher PDF
         document.getElementById('p-name').innerText = name;
         document.getElementById('p-emit').innerText = new Date().toLocaleDateString('pt-BR');
         document.getElementById('p-shift').innerText = shift;
-        document.getElementById('p-ref').innerText = document.getElementById('labelMonth').innerText;
+        document.getElementById('p-ref').innerText = document.getElementById('monthDisplay').innerText;
         
-        const table = document.getElementById('p-table');
-        table.innerHTML = '';
-        const sorted = Array.from(selectedDays.values()).sort((a,b) => a.d - b.d);
+        const tbody = document.getElementById('p-body');
+        tbody.innerHTML = '';
+        const sorted = Array.from(selected.values()).sort((a,b) => a.d - b.d);
         
         sorted.forEach(i => {
             const dt = new Date(i.y, i.m, i.d);
-            const diaSem = dt.toLocaleDateString('pt-BR', {weekday:'long'}).split('-')[0];
+            const diaSem = dt.toLocaleDateString('pt-BR', {weekday:'long'}).replace("-feira", "");
             const horario = i.h === 12 ? '19:00 - 07:00' : (i.h === 13 ? '06:00 - 19:00' : '07:00 - 18:00');
-            table.innerHTML += `<tr>
-                <td>${i.d}/${i.m+1}</td>
+            tbody.innerHTML += `<tr>
+                <td>${i.d.toString().padStart(2, '0')}/${(i.m+1).toString().padStart(2, '0')}</td>
                 <td style="text-transform: capitalize;">${diaSem}</td>
-                <td>${shift}</td>
                 <td>${horario}</td>
-                <td>${i.h}h</td>
+                <td><b>${i.h}h</b></td>
             </tr>`;
         });
 
         document.getElementById('p-total').innerText = document.getElementById('totalH').innerText;
 
         const opt = {
-            margin: 0.3,
-            filename: `Plantao_Silo_${name}.pdf`,
-            html2canvas: { scale: 2, width: 700 },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            margin: 0,
+            filename: `Relatorio_Silo_${name}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, width: 800, windowWidth: 800 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
         const element = document.getElementById('pdf-render');
         element.style.display = 'block';
-        await html2pdf().set(opt).from(element).save();
-        element.style.display = 'none';
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+            element.style.display = 'none';
+
+            // WhatsApp link
+            const waMsg = `Olá, segue anexo o registro de plantão do Posto Silo.\n\n*Segurança:* ${name}\n*Mês:* ${document.getElementById('monthDisplay').innerText}\n*Total:* ${document.getElementById('totalH').innerText} horas.`;
+            document.getElementById('waLink').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(waMsg)}`;
+            document.getElementById('waModal').style.display = 'block';
+        } catch (e) {
+            alert("Erro ao gerar PDF.");
+            element.style.display = 'none';
+        }
     }
 
-    selectShift('Diurno');
+    updateShift('Diurno');
 </script>
 </body>
 </html>
