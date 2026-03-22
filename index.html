@@ -6,38 +6,251 @@
     <title>Registro Silo</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', sans-serif; background: #1a2a6c; padding: 10px; color: #333; }
-        .container { max-width: 480px; margin: 0 auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .header { background: #1e3c72; color: white; padding: 20px; text-align: center; }
-        .content { padding: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #1e3c72; }
-        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 15px; font-size: 16px; }
-        .shift-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .btn-shift { padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; background: #f9f9f9; font-weight: bold; }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a2a6c;
+            color: #333;
+        }
+
+        body {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100dvh;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #1e3c72;
+            color: white;
+            padding: 18px 16px 14px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .header h2 { font-size: 20px; margin-bottom: 2px; }
+        .header p  { font-size: 13px; opacity: 0.85; }
+
+        .content {
+            padding: 14px 14px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 13px;
+            color: #1e3c72;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .shift-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .btn-shift {
+            padding: 11px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            background: #f9f9f9;
+            font-weight: bold;
+            font-size: 14px;
+        }
         .btn-shift.active { border-color: #1e3c72; background: #1e3c72; color: white; }
-        .nav-month { display: flex; justify-content: space-between; align-items: center; background: #eee; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
-        .nav-month button { background: #1e3c72; color: white; border: none; padding: 5px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
-        .day { aspect-ratio: 1; border: 1px solid #eee; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; }
-        .day.selected-Diurno { background: #ff9800; color: white; font-weight: bold; }
+
+        .nav-month {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #eee;
+            padding: 9px 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .nav-month span { font-weight: bold; font-size: 15px; }
+        .nav-month button {
+            background: #1e3c72;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .day {
+            aspect-ratio: 1;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            line-height: 1.2;
+        }
+        .day b { font-size: 13px; }
+        .day span { font-size: 8px; opacity: 0.9; }
+        .day.selected-Diurno  { background: #ff9800; color: white; font-weight: bold; }
         .day.selected-Noturno { background: #1e3c72; color: white; font-weight: bold; }
-        .day.selected-Ambos { background: linear-gradient(135deg, #ff9800 50%, #1e3c72 50%); color: white; font-weight: bold; }
-        .total-box { background: #f4f4f4; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: center; font-size: 18px; border-left: 6px solid #1e3c72; }
-        .btn-main { width: 100%; padding: 18px; background: #25D366; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .day.selected-Ambos   { background: linear-gradient(135deg, #ff9800 50%, #1e3c72 50%); color: white; font-weight: bold; }
+
+        .total-box {
+            background: #f4f4f4;
+            padding: 13px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 16px;
+            border-left: 6px solid #1e3c72;
+            margin-bottom: 12px;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 16px;
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: auto;
+        }
 
         /* Modal */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 1000;
+            align-items: flex-end;
+            justify-content: center;
+        }
         .modal-overlay.open { display: flex; }
-        .modal { background: white; border-radius: 14px; width: 100%; max-width: 460px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
-        .modal-header { background: #1e3c72; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header span { font-weight: bold; font-size: 16px; }
-        .modal-close { background: none; border: none; color: white; font-size: 24px; cursor: pointer; line-height: 1; }
-        .modal-body { padding: 16px; }
-        .txt-output { width: 100%; height: 320px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 13px; resize: none; color: #222; background: #fafafa; line-height: 1.7; }
-        .modal-footer { padding: 12px 16px 16px; display: flex; gap: 10px; }
-        .btn-copy { flex: 1; padding: 14px; background: #25D366; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
+
+        .modal {
+            background: white;
+            border-radius: 18px 18px 0 0;
+            width: 100%;
+            max-width: 480px;
+            max-height: 85dvh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -6px 30px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            background: #1e3c72;
+            color: white;
+            padding: 16px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 18px 18px 0 0;
+            flex-shrink: 0;
+        }
+        .modal-header span { font-weight: bold; font-size: 15px; }
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 2px 6px;
+        }
+        .modal-body {
+            padding: 14px;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+        }
+        .txt-output {
+            width: 100%;
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 13px;
+            resize: none;
+            color: #222;
+            background: #fafafa;
+            line-height: 1.7;
+        }
+        .modal-footer {
+            padding: 10px 14px 20px;
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .btn-copy {
+            flex: 1;
+            padding: 14px;
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
         .btn-copy.copied { background: #128C7E; }
-        .btn-close-modal { flex: 1; padding: 14px; background: #eee; color: #333; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; }
+        .btn-close-modal {
+            flex: 1;
+            padding: 14px;
+            background: #eee;
+            color: #333;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -58,9 +271,9 @@
         </div>
 
         <div class="nav-month">
-            <button onclick="navMonth(-1)"> &lt; </button>
-            <span id="monthDisplay" style="font-weight: bold;"></span>
-            <button onclick="navMonth(1)"> &gt; </button>
+            <button onclick="navMonth(-1)">‹</button>
+            <span id="monthDisplay"></span>
+            <button onclick="navMonth(1)">›</button>
         </div>
 
         <div class="calendar" id="calendar"></div>
@@ -74,7 +287,7 @@
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal sobe de baixo (estilo sheet) -->
 <div class="modal-overlay" id="textModal">
     <div class="modal">
         <div class="modal-header">
@@ -102,24 +315,25 @@
 
     function updateShift(s) {
         currentSelectedShift = s;
-        document.getElementById('shift-day').className = 'btn-shift ' + (s === 'Diurno' ? 'active' : '');
+        document.getElementById('shift-day').className  = 'btn-shift ' + (s === 'Diurno'  ? 'active' : '');
         document.getElementById('shift-night').className = 'btn-shift ' + (s === 'Noturno' ? 'active' : '');
         render();
     }
 
     function calcH(y, m, d, s) {
         if (s === 'Noturno') return 12;
-        const dt = new Date(y, m, d);
+        const dt   = new Date(y, m, d);
         const diff = Math.floor((dt - REF_DATE) / 86400000);
         return (Math.abs(diff) % 2 === 0) ? 13 : 11;
     }
 
     function render() {
         const y = date.getFullYear(), m = date.getMonth();
-        const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-        document.getElementById('monthDisplay').innerText = months[m] + " " + y;
+        const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                        "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+        document.getElementById('monthDisplay').innerText = months[m] + ' ' + y;
 
-        const cal = document.getElementById('calendar');
+        const cal   = document.getElementById('calendar');
         cal.innerHTML = '';
         const start = new Date(y, m, 1).getDay();
         const total = new Date(y, m + 1, 0).getDate();
@@ -127,20 +341,20 @@
         for (let i = 0; i < start; i++) cal.innerHTML += '<div></div>';
 
         for (let d = 1; d <= total; d++) {
-            const keyDay = `${y}-${m}-${d}`;
+            const keyDay    = `${y}-${m}-${d}`;
             const keyRecord = `${keyDay}-${currentSelectedShift}`;
-            const hasDiurno = selectedRecords.has(`${keyDay}-Diurno`);
+            const hasDiurno  = selectedRecords.has(`${keyDay}-Diurno`);
             const hasNoturno = selectedRecords.has(`${keyDay}-Noturno`);
 
-            let statusClass = '';
-            if (hasDiurno && hasNoturno) statusClass = 'selected-Ambos';
-            else if (hasDiurno) statusClass = 'selected-Diurno';
-            else if (hasNoturno) statusClass = 'selected-Noturno';
+            let cls = '';
+            if (hasDiurno && hasNoturno) cls = 'selected-Ambos';
+            else if (hasDiurno)  cls = 'selected-Diurno';
+            else if (hasNoturno) cls = 'selected-Noturno';
 
-            const h = calcH(y, m, d, currentSelectedShift);
+            const h   = calcH(y, m, d, currentSelectedShift);
             const div = document.createElement('div');
-            div.className = `day ${statusClass}`;
-            div.innerHTML = `<b>${d}</b><span style="font-size:9px">${currentSelectedShift === 'Diurno' ? h + 'h' : '12h'}</span>`;
+            div.className = `day ${cls}`;
+            div.innerHTML = `<b>${d}</b><span>${currentSelectedShift === 'Diurno' ? h + 'h' : '12h'}</span>`;
 
             div.onclick = () => {
                 if (selectedRecords.has(keyRecord)) {
@@ -177,10 +391,10 @@
 
     function openTextModal() {
         if (selectedRecords.size === 0) return alert("Selecione os plantões!");
-        const name = document.getElementById('userName').value.trim() || '—';
-        const ref  = document.getElementById('monthDisplay').innerText;
+        const name   = document.getElementById('userName').value.trim() || '—';
+        const ref    = document.getElementById('monthDisplay').innerText;
         const sorted = getSorted();
-        let totalH = 0;
+        let totalH   = 0;
 
         let txt = '';
         txt += `📋 *RELATÓRIO DE PLANTÕES*\n`;
@@ -190,13 +404,13 @@
         txt += `─────────────────────────\n`;
 
         sorted.forEach(i => {
-            const dt = new Date(i.y, i.m, i.d);
+            const dt     = new Date(i.y, i.m, i.d);
             const diaSem = dt.toLocaleDateString('pt-BR', { weekday: 'short' })
-                            .replace('.','').replace('-feira','');
-            const dataFmt = `${i.d.toString().padStart(2,'0')}/${(i.m+1).toString().padStart(2,'0')}`;
-            const icon = i.s === 'Diurno' ? '☀️' : '🌙';
+                             .replace('.','').replace('-feira','');
+            const data   = `${i.d.toString().padStart(2,'0')}/${(i.m+1).toString().padStart(2,'0')}`;
+            const icon   = i.s === 'Diurno' ? '☀️' : '🌙';
             const horario = i.s === 'Noturno' ? '19h–07h' : (i.h === 13 ? '06h–19h' : '07h–18h');
-            txt += `${icon} ${dataFmt} (${diaSem}) | ${i.s} | ${horario} | *${i.h}h*\n`;
+            txt += `${icon} ${data} (${diaSem}) | ${i.s} | ${horario} | *${i.h}h*\n`;
             totalH += i.h;
         });
 
@@ -207,8 +421,7 @@
 
         const btn = document.getElementById('btnCopy');
         btn.classList.remove('copied');
-        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copiar`;
-
+        btn.innerHTML = iconCopy() + ' Copiar';
         document.getElementById('textModal').classList.add('open');
     }
 
@@ -217,16 +430,19 @@
     }
 
     function copyText() {
-        const txt = document.getElementById('txtOutput').value;
-        navigator.clipboard.writeText(txt).then(() => {
+        navigator.clipboard.writeText(document.getElementById('txtOutput').value).then(() => {
             const btn = document.getElementById('btnCopy');
             btn.classList.add('copied');
-            btn.innerHTML = `✅ Copiado!`;
+            btn.innerHTML = '✅ Copiado!';
             setTimeout(() => {
                 btn.classList.remove('copied');
-                btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copiar`;
+                btn.innerHTML = iconCopy() + ' Copiar';
             }, 2500);
         });
+    }
+
+    function iconCopy() {
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
     }
 
     updateShift('Diurno');
