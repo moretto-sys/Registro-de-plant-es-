@@ -74,7 +74,6 @@
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 1em;
-            transition: all 0.3s;
         }
 
         input[type="text"]:focus {
@@ -100,11 +99,6 @@
             font-size: 0.9em;
         }
 
-        .shift-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-
         .shift-card.active {
             border-color: #2a5298;
             background: linear-gradient(135deg, #1e3c7220, #2a529820);
@@ -119,7 +113,6 @@
         .shift-card p {
             color: #666;
             font-size: 0.75em;
-            line-height: 1.2;
         }
 
         .shift-info {
@@ -157,12 +150,6 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.85em;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-
-        .month-navigation button:hover {
-            background: #1e3c72;
         }
 
         .month-title {
@@ -202,32 +189,15 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
             background: white;
             min-height: 45px;
             padding: 2px;
-        }
-
-        .day:hover:not(.disabled):not(.selected) {
-            transform: scale(1.05);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .day.selected {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
             border-color: #1e3c72;
-        }
-
-        .day.selected .day-hours {
-            color: rgba(255,255,255,0.9);
-        }
-
-        .day.disabled {
-            background: #f0f0f0;
-            color: #ccc;
-            cursor: not-allowed;
         }
 
         .day-number {
@@ -247,6 +217,7 @@
 
         .day.selected .day-hours {
             background: rgba(255,255,255,0.2);
+            color: white;
         }
 
         .summary {
@@ -276,7 +247,6 @@
             padding: 8px;
             background: white;
             border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             font-size: 0.85em;
         }
 
@@ -305,10 +275,6 @@
             border-bottom: 1px solid #eee;
         }
 
-        .detail-item:last-child {
-            border-bottom: none;
-        }
-
         .btn-group {
             display: grid;
             grid-template-columns: 1fr;
@@ -316,40 +282,15 @@
             margin-top: 15px;
         }
 
-        .btn-submit, .btn-pdf {
+        .btn-pdf {
             padding: 15px;
             border: none;
             border-radius: 8px;
             font-size: 1em;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-
-        .btn-submit {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-        }
-
-        .btn-pdf {
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .btn-submit:hover, .btn-pdf:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .btn-submit:disabled, .btn-pdf:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
         }
 
         .legend {
@@ -377,62 +318,27 @@
 
         .legend-color.selected {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
-            border-color: #1e3c72;
         }
 
-        .success-message {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px 20px;
-            border-radius: 15px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-            text-align: center;
-            z-index: 1000;
-            animation: slideIn 0.3s ease-out;
-            max-width: 90%;
-            width: 320px;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -40%);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%);
-            }
-        }
-
-        .overlay {
+        /* PDF Preview Modal */
+        .pdf-modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
         }
 
-        .check-icon {
-            font-size: 50px;
-            color: #4CAF50;
-            margin-bottom: 15px;
-        }
-
-        /* PDF Styles - Visible for generation */
-        #pdfContent {
-            position: absolute;
-            left: -9999px;
-            top: 0;
-            width: 210mm;
-            padding: 20mm;
+        .pdf-content {
             background: white;
+            margin: 20px auto;
+            padding: 30px;
+            max-width: 800px;
+            width: 95%;
             font-family: Arial, sans-serif;
             font-size: 12pt;
             line-height: 1.4;
@@ -448,14 +354,14 @@
 
         .pdf-header h1 {
             color: #1e3c72;
-            font-size: 18pt;
+            font-size: 20pt;
             margin-bottom: 5px;
         }
 
         .pdf-posto {
             background: #1e3c72;
             color: white;
-            padding: 8px;
+            padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
             font-size: 14pt;
@@ -465,7 +371,6 @@
 
         .pdf-info {
             margin-bottom: 20px;
-            width: 100%;
         }
 
         .pdf-info-row {
@@ -474,7 +379,6 @@
             margin-bottom: 8px;
             padding: 8px;
             background: #f8f9fa;
-            border-radius: 4px;
             border: 1px solid #ddd;
         }
 
@@ -505,7 +409,6 @@
             margin-top: 20px;
             padding: 15px;
             background: #f0f0f0;
-            border-radius: 8px;
             border: 2px solid #1e3c72;
         }
 
@@ -532,33 +435,40 @@
             font-size: 10pt;
         }
 
+        .pdf-actions {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 15px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-download, .btn-close {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-download {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-close {
+            background: #666;
+            color: white;
+        }
+
         @media (max-width: 400px) {
-            .header h1 {
-                font-size: 1.3em;
-            }
-            
             .shift-selector {
                 grid-template-columns: 1fr;
-            }
-            
-            .calendar-wrapper {
-                min-width: 280px;
-            }
-            
-            .calendar {
-                min-width: 270px;
-            }
-            
-            .day {
-                min-height: 40px;
-            }
-            
-            .day-number {
-                font-size: 0.8em;
-            }
-            
-            .day-hours {
-                font-size: 0.55em;
             }
             
             .summary-grid {
@@ -569,36 +479,10 @@
                 grid-column: span 1;
             }
         }
-
-        @media (min-width: 768px) {
-            body {
-                padding: 20px;
-            }
-            
-            .container {
-                max-width: 900px;
-            }
-            
-            .content {
-                padding: 30px;
-            }
-            
-            .calendar-wrapper {
-                min-width: 100%;
-            }
-            
-            .day {
-                min-height: 80px;
-            }
-            
-            .btn-group {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
     </style>
 </head>
 <body>
-    <div class="container" id="appContainer">
+    <div class="container">
         <div class="header">
             <h1>🛡️ Registro de Plantões</h1>
             <p>Posto: Silo</p>
@@ -606,8 +490,8 @@
 
         <div class="content">
             <div class="form-group">
-                <label for="employeeName">👤 Nome Completo</label>
-                <input type="text" id="employeeName" placeholder="Digite seu nome..." autocomplete="name">
+                <label>👤 Nome Completo</label>
+                <input type="text" id="employeeName" placeholder="Digite seu nome...">
             </div>
 
             <div class="form-group">
@@ -676,8 +560,8 @@
             </div>
 
             <div class="btn-group">
-                <button class="btn-pdf" onclick="generatePDF()" id="btnPdf">
-                    📄 Gerar PDF
+                <button class="btn-pdf" onclick="previewPDF()">
+                    📄 Visualizar e Baixar PDF
                 </button>
             </div>
             
@@ -687,81 +571,82 @@
         </div>
     </div>
 
-    <!-- PDF Content Container -->
-    <div id="pdfContent">
-        <div class="pdf-header">
-            <h1>RELATÓRIO DE PLANTÕES</h1>
-            <div class="pdf-posto">POSTO DE TRABALHO: SILO</div>
-            <p style="font-size: 10pt; color: #666;">Controle de Horas - Seguranças</p>
+    <!-- PDF Preview Modal -->
+    <div class="pdf-modal" id="pdfModal">
+        <div class="pdf-content" id="pdfContent">
+            <div class="pdf-header">
+                <h1>RELATÓRIO DE PLANTÕES</h1>
+                <div class="pdf-posto">POSTO DE TRABALHO: SILO</div>
+                <p style="font-size: 10pt; color: #666;">Controle de Horas - Seguranças</p>
+            </div>
+
+            <div class="pdf-info">
+                <div class="pdf-info-row">
+                    <span><strong>Segurança:</strong></span>
+                    <span id="pdfName"></span>
+                </div>
+                <div class="pdf-info-row">
+                    <span><strong>Posto:</strong></span>
+                    <span>Silo</span>
+                </div>
+                <div class="pdf-info-row">
+                    <span><strong>Turno:</strong></span>
+                    <span id="pdfShift"></span>
+                </div>
+                <div class="pdf-info-row">
+                    <span><strong>Data de Emissão:</strong></span>
+                    <span id="pdfDate"></span>
+                </div>
+                <div class="pdf-info-row">
+                    <span><strong>Mês de Referência:</strong></span>
+                    <span id="pdfMonth"></span>
+                </div>
+            </div>
+
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Dia</th>
+                        <th>Turno</th>
+                        <th>Horário</th>
+                        <th>Horas</th>
+                    </tr>
+                </thead>
+                <tbody id="pdfTableBody">
+                </tbody>
+            </table>
+
+            <div class="pdf-summary">
+                <h3 style="color: #1e3c72; margin-bottom: 10px;">Resumo Final</h3>
+                <p><strong>Total de Dias Trabalhados:</strong> <span id="pdfTotalDays">0</span></p>
+                <p><strong>Dias com 11 horas:</strong> <span id="pdfDays11">0</span></p>
+                <p><strong>Dias com 12 horas:</strong> <span id="pdfDays12">0</span></p>
+                <p><strong>Dias com 13 horas:</strong> <span id="pdfDays13">0</span></p>
+                <p style="font-size: 14pt; margin-top: 10px; color: #1e3c72;">
+                    <strong>Total de Horas: <span id="pdfTotalHours">0</span></strong>
+                </p>
+            </div>
+
+            <div class="signature-area">
+                <div class="signature-line">
+                    Assinatura do Segurança
+                </div>
+                <div class="signature-line">
+                    Assinatura do Supervisor
+                </div>
+            </div>
+
+            <div class="pdf-footer">
+                <p>Documento gerado automaticamente - Posto Silo</p>
+                <p>Este relatório é válido sem necessidade de assinatura quando acompanhado do comprovante digital.</p>
+            </div>
         </div>
-
-        <div class="pdf-info">
-            <div class="pdf-info-row">
-                <span><strong>Segurança:</strong></span>
-                <span id="pdfName"></span>
-            </div>
-            <div class="pdf-info-row">
-                <span><strong>Posto:</strong></span>
-                <span>Silo</span>
-            </div>
-            <div class="pdf-info-row">
-                <span><strong>Turno:</strong></span>
-                <span id="pdfShift"></span>
-            </div>
-            <div class="pdf-info-row">
-                <span><strong>Data de Emissão:</strong></span>
-                <span id="pdfDate"></span>
-            </div>
-            <div class="pdf-info-row">
-                <span><strong>Mês de Referência:</strong></span>
-                <span id="pdfMonth"></span>
-            </div>
+        
+        <div class="pdf-actions">
+            <button class="btn-download" onclick="downloadPDF()">⬇️ Baixar PDF</button>
+            <button class="btn-close" onclick="closePDF()">✕ Fechar</button>
         </div>
-
-        <table class="pdf-table">
-            <thead>
-                <tr>
-                    <th style="width: 20%;">Data</th>
-                    <th style="width: 15%;">Dia</th>
-                    <th style="width: 15%;">Turno</th>
-                    <th style="width: 35%;">Horário</th>
-                    <th style="width: 15%;">Horas</th>
-                </tr>
-            </thead>
-            <tbody id="pdfTableBody">
-            </tbody>
-        </table>
-
-        <div class="pdf-summary">
-            <h3 style="color: #1e3c72; margin-bottom: 10px;">Resumo Final</h3>
-            <p><strong>Total de Dias Trabalhados:</strong> <span id="pdfTotalDays">0</span></p>
-            <p><strong>Dias com 11 horas:</strong> <span id="pdfDays11">0</span></p>
-            <p><strong>Dias com 12 horas:</strong> <span id="pdfDays12">0</span></p>
-            <p><strong>Dias com 13 horas:</strong> <span id="pdfDays13">0</span></p>
-            <p style="font-size: 14pt; margin-top: 10px; color: #1e3c72;"><strong>Total de Horas: <span id="pdfTotalHours">0</span></strong></p>
-        </div>
-
-        <div class="signature-area">
-            <div class="signature-line">
-                Assinatura do Segurança
-            </div>
-            <div class="signature-line">
-                Assinatura do Supervisor
-            </div>
-        </div>
-
-        <div class="pdf-footer">
-            <p>Documento gerado automaticamente - Posto Silo</p>
-            <p>Este relatório é válido sem necessidade de assinatura quando acompanhado do comprovante digital.</p>
-        </div>
-    </div>
-
-    <div class="overlay" id="overlay"></div>
-    <div class="success-message" id="successMessage">
-        <div class="check-icon">✓</div>
-        <h2>PDF Gerado!</h2>
-        <p>O relatório foi baixado com sucesso.</p>
-        <button onclick="closeSuccess()" style="margin-top: 15px; padding: 10px 30px; background: #2a5298; color: white; border: none; border-radius: 6px; cursor: pointer;">OK</button>
     </div>
 
     <script>
@@ -803,14 +688,13 @@
             const currentYear = currentDate.getFullYear();
             const currentMonth = currentDate.getMonth();
             
-            let count11 = 0, count13 = 0, count12 = 0;
+            let count11 = 0, count13 = 0;
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const hours = calculateHoursForDate(currentYear, currentMonth, day, selectedShift);
                 if (hours === 11) count11++;
                 else if (hours === 13) count13++;
-                else if (hours === 12) count12++;
             }
             
             if (selectedShift === 'day') {
@@ -825,11 +709,7 @@
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             
             if (shift === 'day') {
-                if (Math.abs(diffDays) % 2 === 0) {
-                    return 13;
-                } else {
-                    return 11;
-                }
+                return Math.abs(diffDays) % 2 === 0 ? 13 : 11;
             } else {
                 return 12;
             }
@@ -867,7 +747,7 @@
             
             for (let i = 0; i < startingDay; i++) {
                 const emptyDay = document.createElement('div');
-                emptyDay.className = 'day disabled';
+                emptyDay.style.visibility = 'hidden';
                 calendar.appendChild(emptyDay);
             }
             
@@ -878,27 +758,13 @@
                 const dateKey = `${year}-${month}-${day}`;
                 const hours = selectedShift ? calculateHoursForDate(year, month, day, selectedShift) : '-';
                 
-                const isSelected = selectedDays.has(dateKey);
-                
-                if (isSelected) {
-                    dayElement.className = 'day selected';
-                } else {
-                    dayElement.className = 'day';
-                }
-                
+                dayElement.className = selectedDays.has(dateKey) ? 'day selected' : 'day';
                 dayElement.onclick = () => toggleDay(year, month, day, dayElement, hours);
                 
-                const dayNumber = document.createElement('div');
-                dayNumber.className = 'day-number';
-                dayNumber.textContent = day;
-                dayElement.appendChild(dayNumber);
-                
-                if (selectedShift) {
-                    const dayHours = document.createElement('div');
-                    dayHours.className = 'day-hours';
-                    dayHours.textContent = hours + 'h';
-                    dayElement.appendChild(dayHours);
-                }
+                dayElement.innerHTML = `
+                    <div class="day-number">${day}</div>
+                    ${selectedShift ? `<div class="day-hours">${hours}h</div>` : ''}
+                `;
                 
                 if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
                     dayElement.style.border = '2px solid #2a5298';
@@ -936,15 +802,14 @@
             let totalHours = 0;
             const details = [];
             
-            selectedDays.forEach((data, key) => {
+            selectedDays.forEach((data) => {
                 if (data.hours === 11) total11++;
                 else if (data.hours === 13) total13++;
                 else if (data.hours === 12) total12++;
                 
                 totalHours += data.hours;
                 
-                const date = data.date;
-                const dateStr = date.toLocaleDateString('pt-BR');
+                const dateStr = data.date.toLocaleDateString('pt-BR');
                 const shiftName = data.shift === 'day' ? 'Diurno' : 'Noturno';
                 details.push(`${dateStr}: ${shiftName} (${data.hours}h)`);
             });
@@ -977,7 +842,6 @@
             
             if (!name) {
                 alert('Digite seu nome!');
-                document.getElementById('employeeName').focus();
                 return false;
             }
             
@@ -994,12 +858,12 @@
             return true;
         }
 
-        function generatePDF() {
+        function previewPDF() {
             if (!validateForm()) return;
             
             const name = document.getElementById('employeeName').value.trim();
             
-            // Preenche dados do PDF
+            // Preenche dados
             document.getElementById('pdfName').textContent = name;
             document.getElementById('pdfShift').textContent = shiftNames[selectedShift];
             document.getElementById('pdfDate').textContent = new Date().toLocaleDateString('pt-BR');
@@ -1020,13 +884,12 @@
             const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
             
             sortedDays.forEach(([key, data]) => {
-                const row = document.createElement('tr');
-                
                 if (data.hours === 11) total11++;
                 else if (data.hours === 13) total13++;
                 else if (data.hours === 12) total12++;
                 totalHours += data.hours;
                 
+                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${data.date.toLocaleDateString('pt-BR')}</td>
                     <td>${weekDays[data.date.getDay()]}</td>
@@ -1044,49 +907,61 @@
             document.getElementById('pdfDays13').textContent = total13;
             document.getElementById('pdfTotalHours').textContent = totalHours + ' horas';
             
-            // Gera PDF
+            // Mostra modal
+            document.getElementById('pdfModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function downloadPDF() {
             const element = document.getElementById('pdfContent');
+            const name = document.getElementById('employeeName').value.trim();
             
             const opt = {
-                margin: 10,
+                margin: [10, 10, 10, 10],
                 filename: `Plantao_Silo_${name.replace(/\s+/g, '_')}_${currentDate.getMonth()+1}_${currentDate.getFullYear()}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
+                image: { type: 'jpeg', quality: 1 },
                 html2canvas: { 
-                    scale: 2, 
+                    scale: 2,
                     useCORS: true,
-                    logging: true,
-                    letterRendering: true
+                    allowTaint: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
                 },
                 jsPDF: { 
                     unit: 'mm', 
                     format: 'a4', 
-                    orientation: 'portrait'
-                }
+                    orientation: 'portrait',
+                    compress: false
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
             
-            // Mostra mensagem de sucesso
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('successMessage').style.display = 'block';
-            
-            // Gera e baixa
-            html2pdf().set(opt).from(element).save().then(() => {
-                console.log('PDF gerado com sucesso!');
-            }).catch(err => {
-                console.error('Erro ao gerar PDF:', err);
-                alert('Erro ao gerar PDF. Tente novamente.');
-            });
+            // Gera PDF
+            html2pdf()
+                .set(opt)
+                .from(element)
+                .save()
+                .then(() => {
+                    console.log('PDF baixado com sucesso!');
+                    // Limpa após download
+                    setTimeout(() => {
+                        selectedDays.clear();
+                        document.getElementById('employeeName').value = '';
+                        selectShift(null);
+                        renderCalendar();
+                        updateSummary();
+                        closePDF();
+                    }, 1000);
+                })
+                .catch(err => {
+                    console.error('Erro:', err);
+                    alert('Erro ao gerar PDF. Tente novamente.');
+                });
         }
 
-        function closeSuccess() {
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
-            
-            // Limpa tudo para nova seleção
-            selectedDays.clear();
-            document.getElementById('employeeName').value = '';
-            selectShift(null);
-            renderCalendar();
-            updateSummary();
+        function closePDF() {
+            document.getElementById('pdfModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
         // Inicializa
