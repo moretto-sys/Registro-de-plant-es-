@@ -354,7 +354,8 @@
             const h   = calcH(y, m, d, currentSelectedShift);
             const div = document.createElement('div');
             div.className = `day ${cls}`;
-            div.innerHTML = `<b>${d}</b><span>${currentSelectedShift === 'Diurno' ? h + 'h' : '12h'}</span>`;
+            const horarioMini = currentSelectedShift === 'Noturno' ? '19h-07h' : (h === 13 ? '06h-19h' : '07h-18h');
+            div.innerHTML = `<b>${d}</b><span>${currentSelectedShift === 'Diurno' ? h + 'h' : '12h'}</span><span style="font-size:7px;opacity:0.85;letter-spacing:-0.3px">${horarioMini}</span>`;
 
             div.onclick = () => {
                 if (selectedRecords.has(keyRecord)) {
