@@ -20,8 +20,13 @@
         .nav-month { display: flex; justify-content: space-between; align-items: center; background: #eee; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
         .nav-month button { background: #1e3c72; color: white; border: none; padding: 5px 15px; border-radius: 4px; font-weight: bold; }
         .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
-        .day { aspect-ratio: 1; border: 1px solid #eee; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; }
-        .day.selected { background: #1e3c72; color: white; font-weight: bold; }
+        .day { aspect-ratio: 1; border: 1px solid #eee; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; position: relative; }
+        
+        /* Cores para identificar turnos no calendário */
+        .day.selected-Diurno { background: #ff9800; color: white; font-weight: bold; }
+        .day.selected-Noturno { background: #1e3c72; color: white; font-weight: bold; }
+        .day.selected-Ambos { background: linear-gradient(135deg, #ff9800 50%, #1e3c72 50%); color: white; font-weight: bold; }
+
         .total-box { background: #f4f4f4; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: center; font-size: 18px; border-left: 6px solid #1e3c72; }
         .btn-main { width: 100%; padding: 18px; background: #e74c3c; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 15px; }
 
@@ -33,30 +38,14 @@
             padding: 60px;
             background: white;
             color: black;
-            text-align: center; /* Centraliza textos gerais */
+            text-align: center;
         }
         .pdf-header { border-bottom: 3px solid #1e3c72; padding-bottom: 20px; margin-bottom: 30px; }
-        .pdf-info-grid { 
-            display: flex; 
-            justify-content: center; 
-            flex-wrap: wrap; 
-            gap: 30px; 
-            margin-bottom: 30px; 
-            font-size: 16px;
-            text-align: left; /* Mantém os labels alinhados à esquerda dentro do centro */
-        }
-        .info-item { min-width: 250px; }
+        .pdf-info-grid { display: flex; justify-content: center; gap: 50px; margin-bottom: 30px; font-size: 16px; text-align: left; }
         .pdf-table { width: 100%; border-collapse: collapse; margin: 0 auto 30px auto; }
         .pdf-table th { background: #f2f2f2; color: #1e3c72; padding: 12px; border: 1px solid #333; }
         .pdf-table td { padding: 10px; text-align: center; border: 1px solid #333; font-size: 14px; }
-        .pdf-summary { 
-            width: 100%;
-            background: #f9f9f9; 
-            padding: 20px; 
-            border: 2px solid #1e3c72; 
-            font-size: 22px; 
-            margin: 20px auto 40px auto; 
-        }
+        .pdf-summary { width: 100%; background: #f9f9f9; padding: 20px; border: 2px solid #1e3c72; font-size: 22px; margin: 20px auto 40px auto; }
         .pdf-signatures { display: flex; justify-content: space-around; margin-top: 80px; }
         .sig-box { width: 280px; border-top: 1px solid #000; text-align: center; padding-top: 10px; font-size: 14px; }
     </style>
@@ -66,16 +55,16 @@
 <div class="container">
     <div class="header">
         <h2>Posto Silo</h2>
-        <p>Controle de Plantão</p>
+        <p>Controle de Plantão Especial</p>
     </div>
     <div class="content">
         <label>Nome do Segurança</label>
         <input type="text" id="userName" value="Moretto">
 
-        <label>Selecione o Turno</label>
+        <label>Turno para Seleção</label>
         <div class="shift-grid">
-            <div class="btn-shift active" id="shift-day" onclick="updateShift('Diurno')">Diurno</div>
-            <div class="btn-shift" id="shift-night" onclick="updateShift('Noturno')">Noturno</div>
+            <div class="btn-shift active" id="shift-day" onclick="updateShift('Diurno')">☀️ Diurno</div>
+            <div class="btn-shift" id="shift-night" onclick="updateShift('Noturno')">🌙 Noturno</div>
         </div>
 
         <div class="nav-month">
@@ -86,7 +75,7 @@
 
         <div class="calendar" id="calendar"></div>
 
-        <div class="total-box">Total do Mês: <b id="totalH">0</b> horas</div>
+        <div class="total-box">Total Acumulado: <b id="totalH">0</b> horas</div>
 
         <button class="btn-main" onclick="processPDF()">📄 GERAR RELATÓRIO PDF</button>
     </div>
@@ -95,17 +84,17 @@
 <div id="pdf-render">
     <div class="pdf-header">
         <h1 style="color: #1e3c72; font-size: 28px; margin-bottom: 5px;">RELATÓRIO DE PLANTÕES</h1>
-        [span_1](start_span)<p style="font-size: 16px; color: #444;">POSTO DE TRABALHO: <b>SILO</b>[span_1](end_span)</p>
+        [span_4](start_span)<p style="font-size: 16px; color: #444;">POSTO DE TRABALHO: <b>SILO</b>[span_4](end_span)</p>
     </div>
 
     <div class="pdf-info-grid">
-        <div class="info-item">
-            <p><b>Segurança:</b> <span id="p-name"></span></p>
-            <p><b>Turno:</b> <span id="p-shift"></span></p>
+        <div>
+            [span_5](start_span)<p><b>Segurança:</b> <span id="p-name"></span>[span_5](end_span)</p>
+            [span_6](start_span)<p><b>Mês/Ano:</b> <span id="p-ref"></span>[span_6](end_span)</p>
         </div>
-        <div class="info-item">
-            <p><b>Mês/Ano:</b> <span id="p-ref"></span></p>
-            <p><b>Emissão:</b> <span id="p-emit"></span></p>
+        <div>
+            [span_7](start_span)<p><b>Emissão:</b> <span id="p-emit"></span>[span_7](end_span)</p>
+            [span_8](start_span)<p><b>Posto:</b> SILO[span_8](end_span)</p>
         </div>
     </div>
 
@@ -114,6 +103,7 @@
             <tr>
                 <th>Data</th>
                 <th>Dia da Semana</th>
+                <th>Turno</th>
                 <th>Horário</th>
                 <th>Horas</th>
             </tr>
@@ -122,7 +112,7 @@
     </table>
 
     <div class="pdf-summary">
-        [span_2](start_span)<b>SOMATÓRIA FINAL: <span id="p-total"></span> HORAS</b>[span_2](end_span)
+        [span_9](start_span)<b>SOMATÓRIA FINAL: <span id="p-total"></span> HORAS</b>[span_9](end_span)
     </div>
 
     <div class="pdf-signatures">
@@ -133,19 +123,19 @@
 
 <script>
     let date = new Date();
-    let shift = 'Diurno';
-    let selected = new Map();
+    let currentSelectedShift = 'Diurno';
+    let selectedRecords = new Map(); // Chave será "YYYY-MM-DD-Shift"
     const REF_DATE = new Date(2026, 2, 22);
 
     function updateShift(s) {
-        shift = s;
+        currentSelectedShift = s;
         document.getElementById('shift-day').className = 'btn-shift ' + (s==='Diurno'?'active':'');
         document.getElementById('shift-night').className = 'btn-shift ' + (s==='Noturno'?'active':'');
         render();
     }
 
-    function calcH(y, m, d) {
-        if(shift === 'Noturno') return 12;
+    function calcH(y, m, d, s) {
+        if(s === 'Noturno') return 12;
         const dt = new Date(y, m, d);
         const diff = Math.floor((dt - REF_DATE) / 86400000);
         return (Math.abs(diff) % 2 === 0) ? 13 : 11;
@@ -163,14 +153,28 @@
 
         for(let i=0; i<start; i++) cal.innerHTML += '<div></div>';
         for(let d=1; d<=total; d++) {
-            const key = `${y}-${m}-${d}`;
-            const h = calcH(y, m, d);
-            const isS = selected.has(key);
+            const keyDay = `${y}-${m}-${d}`;
+            const keyRecord = `${keyDay}-${currentSelectedShift}`;
+            
+            const hasDiurno = selectedRecords.has(`${keyDay}-Diurno`);
+            const hasNoturno = selectedRecords.has(`${keyDay}-Noturno`);
+            
+            let statusClass = '';
+            if(hasDiurno && hasNoturno) statusClass = 'selected-Ambos';
+            else if(hasDiurno) statusClass = 'selected-Diurno';
+            else if(hasNoturno) statusClass = 'selected-Noturno';
+
+            const h = calcH(y, m, d, currentSelectedShift);
             const div = document.createElement('div');
-            div.className = 'day ' + (isS?'selected':'');
-            div.innerHTML = `<b>${d}</b><span style="font-size:10px">${h}h</span>`;
+            div.className = `day ${statusClass}`;
+            div.innerHTML = `<b>${d}</b><span style="font-size:9px">${currentSelectedShift === 'Diurno' ? h+'h' : '12h'}</span>`;
+            
             div.onclick = () => {
-                isS ? selected.delete(key) : selected.set(key, {d, m, y, h});
+                if(selectedRecords.has(keyRecord)) {
+                    selectedRecords.delete(keyRecord);
+                } else {
+                    selectedRecords.set(keyRecord, {d, m, y, h, s: currentSelectedShift});
+                }
                 render();
                 updateTotal();
             };
@@ -179,7 +183,7 @@
     }
 
     function updateTotal() {
-        let t = 0; selected.forEach(v => t += v.h);
+        let t = 0; selectedRecords.forEach(v => t += v.h);
         document.getElementById('totalH').innerText = t;
     }
 
@@ -187,24 +191,29 @@
 
     async function processPDF() {
         const name = document.getElementById('userName').value;
-        if(selected.size === 0) return alert("Selecione os dias!");
+        if(selectedRecords.size === 0) return alert("Selecione os plantões!");
 
         document.getElementById('p-name').innerText = name;
         document.getElementById('p-emit').innerText = new Date().toLocaleDateString('pt-BR');
-        document.getElementById('p-shift').innerText = shift;
         document.getElementById('p-ref').innerText = document.getElementById('monthDisplay').innerText;
         
         const tbody = document.getElementById('p-body');
         tbody.innerHTML = '';
-        const sorted = Array.from(selected.values()).sort((a,b) => a.d - b.d);
+        
+        // Ordenar registros por data e depois por turno (Diurno antes de Noturno)
+        const sorted = Array.from(selectedRecords.values()).sort((a,b) => {
+            if(a.d !== b.d) return a.d - b.d;
+            return a.s === 'Diurno' ? -1 : 1;
+        });
         
         sorted.forEach(i => {
             const dt = new Date(i.y, i.m, i.d);
             const diaSem = dt.toLocaleDateString('pt-BR', {weekday:'long'}).replace("-feira", "");
-            const horario = i.h === 12 ? '19:00 - 07:00' : (i.h === 13 ? '06:00 - 19:00' : '07:00 - 18:00');
+            const horario = i.s === 'Noturno' ? '19:00 - 07:00' : (i.h === 13 ? '06:00 - 19:00' : '07:00 - 18:00');
             tbody.innerHTML += `<tr>
                 <td>${i.d.toString().padStart(2, '0')}/${(i.m+1).toString().padStart(2, '0')}</td>
                 <td style="text-transform: capitalize;">${diaSem}</td>
+                <td>${i.s}</td>
                 <td>${horario}</td>
                 <td><b>${i.h}h</b></td>
             </tr>`;
@@ -212,6 +221,9 @@
 
         document.getElementById('p-total').innerText = document.getElementById('totalH').innerText;
 
+        const element = document.getElementById('pdf-render');
+        element.style.display = 'block';
+        
         const opt = {
             margin: 10,
             filename: `Relatorio_Silo_${name}.pdf`,
@@ -219,8 +231,6 @@
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        const element = document.getElementById('pdf-render');
-        element.style.display = 'block';
         await html2pdf().set(opt).from(element).save();
         element.style.display = 'none';
     }
