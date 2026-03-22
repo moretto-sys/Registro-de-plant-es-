@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Registro de Plantões - Silo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
+        /* CSS RESET & MOBILE OPTIMIZATION */
         * {
             margin: 0;
             padding: 0;
@@ -13,20 +17,16 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        html, body {
-            width: 100%;
-            overflow-x: hidden;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             padding: 10px;
+            color: #333;
         }
 
         .container {
-            max-width: 100%;
+            max-width: 500px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
@@ -35,37 +35,21 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: #1e3c72;
             color: white;
             padding: 20px 15px;
             text-align: center;
         }
 
-        .header h1 {
-            font-size: 1.5em;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
+        .content { padding: 15px; }
 
-        .header p {
-            opacity: 0.9;
-            font-size: 0.9em;
-        }
-
-        .content {
-            padding: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
+        .form-group { margin-bottom: 15px; }
 
         label {
             display: block;
             margin-bottom: 5px;
-            color: #333;
             font-weight: 600;
-            font-size: 0.95em;
+            font-size: 0.9em;
         }
 
         input[type="text"] {
@@ -73,14 +57,10 @@
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 1em;
+            font-size: 16px; /* Evita zoom no iOS */
         }
 
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #2a5298;
-        }
-
+        /* SHIFT SELECTOR */
         .shift-selector {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -89,883 +69,395 @@
         }
 
         .shift-card {
-            padding: 15px 10px;
+            padding: 15px 5px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             cursor: pointer;
             text-align: center;
-            transition: all 0.3s;
             background: #f8f9fa;
-            font-size: 0.9em;
         }
 
         .shift-card.active {
             border-color: #2a5298;
-            background: linear-gradient(135deg, #1e3c7220, #2a529820);
-        }
-
-        .shift-card h3 {
-            color: #333;
-            margin-bottom: 3px;
-            font-size: 1em;
-        }
-
-        .shift-card p {
-            color: #666;
-            font-size: 0.75em;
+            background: #eef2f7;
         }
 
         .shift-info {
-            margin-top: 5px;
-            padding: 5px;
-            background: white;
-            border-radius: 5px;
             font-size: 0.7em;
             color: #2a5298;
             font-weight: bold;
+            margin-top: 5px;
         }
 
-        .calendar-container {
-            margin-top: 15px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
+        /* CALENDAR */
         .month-navigation {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: #f8f9fa;
+            background: #f1f1f1;
+            padding: 8px;
             border-radius: 8px;
-            min-width: 280px;
+            margin-bottom: 10px;
         }
 
         .month-navigation button {
             background: #2a5298;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85em;
-        }
-
-        .month-title {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #333;
-            text-align: center;
-            flex: 1;
-        }
-
-        .calendar-wrapper {
-            min-width: 320px;
-            overflow-x: auto;
+            padding: 6px 12px;
+            border-radius: 4px;
         }
 
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
-            min-width: 310px;
+            gap: 4px;
         }
 
         .day-header {
             text-align: center;
+            font-size: 0.7em;
             font-weight: bold;
             color: #2a5298;
-            padding: 8px 2px;
-            font-size: 0.75em;
+            padding-bottom: 5px;
         }
 
         .day {
             aspect-ratio: 1;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #eee;
             border-radius: 6px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            font-size: 0.8em;
             cursor: pointer;
-            background: white;
-            min-height: 45px;
-            padding: 2px;
         }
 
         .day.selected {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            background: #2a5298;
             color: white;
-            border-color: #1e3c72;
-        }
-
-        .day-number {
-            font-size: 0.9em;
-            font-weight: bold;
         }
 
         .day-hours {
             font-size: 0.6em;
-            margin-top: 1px;
-            color: #2a5298;
             font-weight: bold;
-            background: rgba(42, 82, 152, 0.1);
-            padding: 1px 3px;
-            border-radius: 4px;
+            display: block;
         }
 
-        .day.selected .day-hours {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-
+        /* SUMMARY */
         .summary {
             margin-top: 15px;
-            padding: 15px;
-            background: linear-gradient(135deg, #1e3c7210, #2a529810);
+            background: #f9f9f9;
+            padding: 12px;
             border-radius: 10px;
-            border-left: 4px solid #2a5298;
-        }
-
-        .summary h3 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1em;
+            border-left: 4px solid #1e3c72;
         }
 
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            background: white;
-            border-radius: 6px;
             font-size: 0.85em;
         }
 
-        .summary-item.total {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
-            font-size: 0.95em;
-            font-weight: bold;
+        .total {
             grid-column: span 2;
-        }
-
-        .detail-list {
-            margin-top: 10px;
-            max-height: 150px;
-            overflow-y: auto;
-            background: white;
-            border-radius: 6px;
+            background: #1e3c72;
+            color: white;
             padding: 8px;
-            font-size: 0.8em;
-        }
-
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            margin-top: 15px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 5px;
         }
 
         .btn-pdf {
+            width: 100%;
             padding: 15px;
+            background: #e74c3c;
+            color: white;
             border: none;
             border-radius: 8px;
-            font-size: 1em;
             font-weight: bold;
-            cursor: pointer;
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
+            margin-top: 15px;
+            font-size: 16px;
         }
 
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-            justify-content: center;
-            font-size: 0.7em;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            color: #666;
-        }
-
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .legend-color.selected {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-        }
-
-        /* PDF Preview Modal */
+        /* PDF MODAL & CONTENT (FIXED WIDTH FOR EXPORT) */
         .pdf-modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
             z-index: 1000;
             overflow-y: auto;
-        }
-
-        .pdf-content {
-            background: white;
-            margin: 20px auto;
-            padding: 30px;
-            max-width: 800px;
-            width: 95%;
-            font-family: Arial, sans-serif;
-            font-size: 12pt;
-            line-height: 1.4;
-            color: #000;
-        }
-
-        .pdf-header {
-            text-align: center;
-            border-bottom: 3px solid #1e3c72;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .pdf-header h1 {
-            color: #1e3c72;
-            font-size: 20pt;
-            margin-bottom: 5px;
-        }
-
-        .pdf-posto {
-            background: #1e3c72;
-            color: white;
             padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-size: 14pt;
-            font-weight: bold;
+        }
+
+        #pdfContent {
+            background: white;
+            width: 800px; /* Largura fixa para o motor do PDF */
+            margin: 0 auto;
+            padding: 40px;
+            position: absolute;
+            left: -9999px; /* Esconde da visão mas mantém no DOM */
+        }
+
+        .pdf-preview-container {
+            background: white;
+            max-width: 100%;
+            margin: 20px auto;
+            padding: 10px;
+            border-radius: 8px;
             text-align: center;
-        }
-
-        .pdf-info {
-            margin-bottom: 20px;
-        }
-
-        .pdf-info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding: 8px;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
         }
 
         .pdf-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            border: 1px solid #333;
+            margin: 20px 0;
         }
 
         .pdf-table th, .pdf-table td {
             border: 1px solid #333;
             padding: 8px;
-            text-align: left;
-        }
-
-        .pdf-table th {
-            background: #1e3c72;
-            color: white;
-            font-weight: bold;
-        }
-
-        .pdf-table tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-
-        .pdf-summary {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f0f0f0;
-            border: 2px solid #1e3c72;
-        }
-
-        .pdf-footer {
-            margin-top: 30px;
             text-align: center;
-            color: #666;
-            font-size: 10pt;
-            border-top: 1px solid #ddd;
-            padding-top: 15px;
         }
 
-        .signature-area {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
-        }
+        .pdf-table th { background: #f0f0f0; }
 
-        .signature-line {
-            width: 45%;
-            border-top: 1px solid #333;
-            padding-top: 8px;
-            text-align: center;
-            font-size: 10pt;
-        }
-
-        .pdf-actions {
+        .pdf-footer-actions {
             position: sticky;
-            bottom: 0;
-            background: white;
-            padding: 15px;
-            border-top: 2px solid #ddd;
-            text-align: center;
+            bottom: 10px;
             display: flex;
             gap: 10px;
             justify-content: center;
         }
 
-        .btn-download, .btn-close {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 6px;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .btn-dl { background: #27ae60; color: white; padding: 12px 25px; border: none; border-radius: 5px; font-weight: bold; }
+        .btn-cl { background: #7f8c8d; color: white; padding: 12px 25px; border: none; border-radius: 5px; }
 
-        .btn-download {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .btn-close {
-            background: #666;
-            color: white;
-        }
-
-        @media (max-width: 400px) {
-            .shift-selector {
-                grid-template-columns: 1fr;
-            }
-            
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .summary-item.total {
-                grid-column: span 1;
-            }
-        }
     </style>
 </head>
 <body>
+
     <div class="container">
         <div class="header">
-            <h1>🛡️ Registro de Plantões</h1>
-            <p>Posto: Silo</p>
+            <h2>🛡️ Posto Silo</h2>
+            <p>Registro de Plantões</p>
         </div>
 
         <div class="content">
             <div class="form-group">
-                <label>👤 Nome Completo</label>
-                <input type="text" id="employeeName" placeholder="Digite seu nome...">
+                <label>Nome do Segurança</label>
+                <input type="text" id="employeeName" placeholder="Seu nome completo">
             </div>
 
             <div class="form-group">
-                <label>🔄 Selecione seu Turno</label>
+                <label>Selecione o Turno</label>
                 <div class="shift-selector">
-                    <div class="shift-card" onclick="selectShift('day')" id="shift-day">
-                        <h3>☀️ Diurno</h3>
-                        <p>6h-19h (13h) ↔ 7h-18h (11h)</p>
-                        <div class="shift-info" id="day-hours-info">Selecione</div>
+                    <div class="shift-card" id="btn-day" onclick="setShift('day')">
+                        <strong>☀️ Diurno</strong>
+                        <div class="shift-info" id="info-day">-</div>
                     </div>
-                    <div class="shift-card" onclick="selectShift('night')" id="shift-night">
-                        <h3>🌙 Noturno</h3>
-                        <p>12 horas fixas</p>
-                        <div class="shift-info" id="night-hours-info">12h fixas</div>
+                    <div class="shift-card" id="btn-night" onclick="setShift('night')">
+                        <strong>🌙 Noturno</strong>
+                        <div class="shift-info">12h Fixas</div>
                     </div>
                 </div>
             </div>
 
-            <div class="calendar-container">
-                <div class="month-navigation">
-                    <button onclick="changeMonth(-1)">← Anterior</button>
-                    <div class="month-title" id="monthTitle"></div>
-                    <button onclick="changeMonth(1)">Próximo →</button>
-                </div>
-
-                <div class="calendar-wrapper">
-                    <div class="calendar" id="calendar"></div>
-                </div>
-
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color selected"></div>
-                        <span>Selecionado</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: white;"></div>
-                        <span>Disponível</span>
-                    </div>
-                </div>
+            <div class="month-navigation">
+                <button onclick="changeMonth(-1)">←</button>
+                <strong id="monthLabel">Mês</strong>
+                <button onclick="changeMonth(1)">→</button>
             </div>
 
-            <div class="summary" id="summary">
-                <h3>📊 Resumo</h3>
+            <div class="calendar" id="calendar"></div>
+
+            <div class="summary">
                 <div class="summary-grid">
-                    <div class="summary-item">
-                        <span>Dias 11h:</span>
-                        <span id="days11h">0</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>Dias 13h:</span>
-                        <span id="days13h">0</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>Dias 12h:</span>
-                        <span id="days12h">0</span>
-                    </div>
-                    <div class="summary-item total">
-                        <span>Total:</span>
-                        <span id="totalHours">0h</span>
-                    </div>
-                </div>
-                <div id="detailList" class="detail-list" style="display: none;">
-                    <h4 style="margin-bottom: 8px; color: #333; font-size: 0.9em;">Dias selecionados:</h4>
-                    <div id="detailContent"></div>
+                    <span>Dias 11h: <b id="s11">0</b></span>
+                    <span>Dias 13h: <b id="s13">0</b></span>
+                    <span>Dias 12h: <b id="s12">0</b></span>
+                    <div class="total">Total: <span id="totalH">0</span> horas</div>
                 </div>
             </div>
 
-            <div class="btn-group">
-                <button class="btn-pdf" onclick="previewPDF()">
-                    📄 Visualizar e Baixar PDF
-                </button>
-            </div>
-            
-            <p style="text-align: center; margin-top: 10px; color: #666; font-size: 0.8em;">
-                ℹ️ Se errar, atualize a página e selecione novamente
-            </p>
+            <button class="btn-pdf" onclick="openPreview()">📄 GERAR PDF</button>
         </div>
     </div>
 
-    <!-- PDF Preview Modal -->
-    <div class="pdf-modal" id="pdfModal">
-        <div class="pdf-content" id="pdfContent">
-            <div class="pdf-header">
-                <h1>RELATÓRIO DE PLANTÕES</h1>
-                <div class="pdf-posto">POSTO DE TRABALHO: SILO</div>
-                <p style="font-size: 10pt; color: #666;">Controle de Horas - Seguranças</p>
-            </div>
-
-            <div class="pdf-info">
-                <div class="pdf-info-row">
-                    <span><strong>Segurança:</strong></span>
-                    <span id="pdfName"></span>
-                </div>
-                <div class="pdf-info-row">
-                    <span><strong>Posto:</strong></span>
-                    <span>Silo</span>
-                </div>
-                <div class="pdf-info-row">
-                    <span><strong>Turno:</strong></span>
-                    <span id="pdfShift"></span>
-                </div>
-                <div class="pdf-info-row">
-                    <span><strong>Data de Emissão:</strong></span>
-                    <span id="pdfDate"></span>
-                </div>
-                <div class="pdf-info-row">
-                    <span><strong>Mês de Referência:</strong></span>
-                    <span id="pdfMonth"></span>
-                </div>
-            </div>
-
-            <table class="pdf-table">
-                <thead>
-                    <tr>
-                        <th>Data</th>
-                        <th>Dia</th>
-                        <th>Turno</th>
-                        <th>Horário</th>
-                        <th>Horas</th>
-                    </tr>
-                </thead>
-                <tbody id="pdfTableBody">
-                </tbody>
-            </table>
-
-            <div class="pdf-summary">
-                <h3 style="color: #1e3c72; margin-bottom: 10px;">Resumo Final</h3>
-                <p><strong>Total de Dias Trabalhados:</strong> <span id="pdfTotalDays">0</span></p>
-                <p><strong>Dias com 11 horas:</strong> <span id="pdfDays11">0</span></p>
-                <p><strong>Dias com 12 horas:</strong> <span id="pdfDays12">0</span></p>
-                <p><strong>Dias com 13 horas:</strong> <span id="pdfDays13">0</span></p>
-                <p style="font-size: 14pt; margin-top: 10px; color: #1e3c72;">
-                    <strong>Total de Horas: <span id="pdfTotalHours">0</span></strong>
-                </p>
-            </div>
-
-            <div class="signature-area">
-                <div class="signature-line">
-                    Assinatura do Segurança
-                </div>
-                <div class="signature-line">
-                    Assinatura do Supervisor
-                </div>
-            </div>
-
-            <div class="pdf-footer">
-                <p>Documento gerado automaticamente - Posto Silo</p>
-                <p>Este relatório é válido sem necessidade de assinatura quando acompanhado do comprovante digital.</p>
-            </div>
+    <div id="pdfContent">
+        <div style="text-align: center; border-bottom: 2px solid #1e3c72; padding-bottom: 10px;">
+            <h1 style="color: #1e3c72;">RELATÓRIO DE PLANTÃO</h1>
+            <h3>POSTO: SILO</h3>
         </div>
         
-        <div class="pdf-actions">
-            <button class="btn-download" onclick="downloadPDF()">⬇️ Baixar PDF</button>
-            <button class="btn-close" onclick="closePDF()">✕ Fechar</button>
+        <div style="margin: 20px 0; font-size: 1.2em;">
+            <p><b>Segurança:</b> <span id="pName"></span></p>
+            <p><b>Mês/Ano:</b> <span id="pMonth"></span></p>
+            <p><b>Emissão:</b> <span id="pNow"></span></p>
+        </div>
+
+        <table class="pdf-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Dia da Semana</th>
+                    <th>Horário</th>
+                    <th>Carga</th>
+                </tr>
+            </thead>
+            <tbody id="pTableBody"></tbody>
+        </table>
+
+        <div style="background: #f9f9f9; padding: 15px; border: 1px solid #ccc;">
+            <p><b>Total de Dias Trabalhados:</b> <span id="pTotalDays"></span></p>
+            <p style="font-size: 1.4em; color: #1e3c72; margin-top: 5px;"><b>TOTAL DE HORAS: <span id="pTotalHours"></span></b></p>
+        </div>
+
+        <div style="margin-top: 50px; display: flex; justify-content: space-between;">
+            <div style="border-top: 1px solid #000; width: 45%; text-align: center; padding-top: 5px;">Assinatura do Funcionário</div>
+            <div style="border-top: 1px solid #000; width: 45%; text-align: center; padding-top: 5px;">Supervisor / Silo</div>
+        </div>
+    </div>
+
+    <div class="pdf-modal" id="modal">
+        <div class="pdf-preview-container">
+            <h3>Tudo certo?</h3>
+            <p>Clique abaixo para baixar o arquivo.</p>
+        </div>
+        <div class="pdf-footer-actions">
+            <button class="btn-dl" id="btnDownload" onclick="generatePDF()">⬇️ BAIXAR PDF AGORA</button>
+            <button class="btn-cl" onclick="closePreview()">VOLTAR</button>
         </div>
     </div>
 
     <script>
-        let currentDate = new Date();
+        let currentMonth = new Date();
         let selectedShift = null;
         let selectedDays = new Map();
-        
-        const REFERENCE_DATE = new Date(2026, 2, 22);
-        
-        const shiftNames = {
-            day: 'Diurno',
-            night: 'Noturno'
-        };
+        const REF_DATE = new Date(2026, 2, 22); // Referência para escala 11/13
 
-        const shiftTimes = {
-            11: '07:00 - 18:00',
-            12: '19:00 - 07:00',
-            13: '06:00 - 19:00'
-        };
-
-        function init() {
-            renderCalendar();
+        function setShift(s) {
+            selectedShift = s;
+            document.getElementById('btn-day').classList.toggle('active', s === 'day');
+            document.getElementById('btn-night').classList.toggle('active', s === 'night');
+            render();
         }
 
-        function selectShift(shift) {
-            selectedShift = shift;
-            document.querySelectorAll('.shift-card').forEach(card => {
-                card.classList.remove('active');
-            });
-            document.getElementById(`shift-${shift}`).classList.add('active');
-            updateShiftInfo();
-            renderCalendar();
-            updateSummary();
+        function getHours(year, month, day) {
+            if (selectedShift === 'night') return 12;
+            const date = new Date(year, month, day);
+            const diff = Math.floor((date - REF_DATE) / (1000 * 60 * 60 * 24));
+            return (Math.abs(diff) % 2 === 0) ? 13 : 11;
         }
 
-        function updateShiftInfo() {
-            if (!selectedShift) return;
-            
-            const currentYear = currentDate.getFullYear();
-            const currentMonth = currentDate.getMonth();
-            
-            let count11 = 0, count13 = 0;
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            
-            for (let day = 1; day <= daysInMonth; day++) {
-                const hours = calculateHoursForDate(currentYear, currentMonth, day, selectedShift);
-                if (hours === 11) count11++;
-                else if (hours === 13) count13++;
-            }
-            
-            if (selectedShift === 'day') {
-                document.getElementById('day-hours-info').textContent = 
-                    `${count11} dias (11h) + ${count13} dias (13h)`;
-            }
-        }
+        function render() {
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            const names = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+            document.getElementById('monthLabel').textContent = `${names[month]} ${year}`;
 
-        function calculateHoursForDate(year, month, day, shift) {
-            const checkDate = new Date(year, month, day);
-            const diffTime = checkDate - REFERENCE_DATE;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const cal = document.getElementById('calendar');
+            cal.innerHTML = '';
             
-            if (shift === 'day') {
-                return Math.abs(diffDays) % 2 === 0 ? 13 : 11;
-            } else {
-                return 12;
-            }
-        }
+            const firstDay = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
 
-        function changeMonth(delta) {
-            currentDate.setMonth(currentDate.getMonth() + delta);
-            renderCalendar();
-            updateShiftInfo();
-        }
+            ['D','S','T','Q','Q','S','S'].forEach(d => cal.innerHTML += `<div class="day-header">${d}</div>`);
+            for(let i=0; i<firstDay; i++) cal.innerHTML += `<div></div>`;
 
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            
-            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                              'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-            
-            document.getElementById('monthTitle').textContent = `${monthNames[month]} ${year}`;
-            
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const startingDay = firstDay.getDay();
-            
-            const calendar = document.getElementById('calendar');
-            calendar.innerHTML = '';
-            
-            const dayHeaders = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-            dayHeaders.forEach(day => {
-                const header = document.createElement('div');
-                header.className = 'day-header';
-                header.textContent = day;
-                calendar.appendChild(header);
-            });
-            
-            for (let i = 0; i < startingDay; i++) {
-                const emptyDay = document.createElement('div');
-                emptyDay.style.visibility = 'hidden';
-                calendar.appendChild(emptyDay);
-            }
-            
-            const today = new Date();
-            
-            for (let day = 1; day <= lastDay.getDate(); day++) {
-                const dayElement = document.createElement('div');
-                const dateKey = `${year}-${month}-${day}`;
-                const hours = selectedShift ? calculateHoursForDate(year, month, day, selectedShift) : '-';
+            for(let d=1; d<=totalDays; d++) {
+                const key = `${year}-${month}-${d}`;
+                const hours = selectedShift ? getHours(year, month, d) : '';
+                const isSel = selectedDays.has(key);
                 
-                dayElement.className = selectedDays.has(dateKey) ? 'day selected' : 'day';
-                dayElement.onclick = () => toggleDay(year, month, day, dayElement, hours);
-                
-                dayElement.innerHTML = `
-                    <div class="day-number">${day}</div>
-                    ${selectedShift ? `<div class="day-hours">${hours}h</div>` : ''}
-                `;
-                
-                if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
-                    dayElement.style.border = '2px solid #2a5298';
-                }
-                
-                calendar.appendChild(dayElement);
+                const dayEl = document.createElement('div');
+                dayEl.className = `day ${isSel ? 'selected' : ''}`;
+                dayEl.innerHTML = `<span>${d}</span><span class="day-hours">${hours ? hours+'h' : ''}</span>`;
+                dayEl.onclick = () => {
+                    if(!selectedShift) return alert("Selecione o Turno!");
+                    isSel ? selectedDays.delete(key) : selectedDays.set(key, {d, m:month, y:year, h:hours});
+                    render();
+                    updateSummary();
+                };
+                cal.appendChild(dayEl);
             }
-        }
-
-        function toggleDay(year, month, day, element, hours) {
-            if (!selectedShift) {
-                alert('Selecione seu turno primeiro!');
-                return;
-            }
-            
-            const dateKey = `${year}-${month}-${day}`;
-            
-            if (selectedDays.has(dateKey)) {
-                selectedDays.delete(dateKey);
-                element.classList.remove('selected');
-            } else {
-                selectedDays.set(dateKey, {
-                    shift: selectedShift,
-                    hours: hours,
-                    date: new Date(year, month, day)
-                });
-                element.classList.add('selected');
-            }
-            
-            updateSummary();
         }
 
         function updateSummary() {
-            let total11 = 0, total13 = 0, total12 = 0;
-            let totalHours = 0;
-            const details = [];
-            
-            selectedDays.forEach((data) => {
-                if (data.hours === 11) total11++;
-                else if (data.hours === 13) total13++;
-                else if (data.hours === 12) total12++;
-                
-                totalHours += data.hours;
-                
-                const dateStr = data.date.toLocaleDateString('pt-BR');
-                const shiftName = data.shift === 'day' ? 'Diurno' : 'Noturno';
-                details.push(`${dateStr}: ${shiftName} (${data.hours}h)`);
+            let h11=0, h12=0, h13=0;
+            selectedDays.forEach(v => {
+                if(v.h === 11) h11++; if(v.h === 12) h12++; if(v.h === 13) h13++;
             });
-            
-            document.getElementById('days11h').textContent = total11;
-            document.getElementById('days13h').textContent = total13;
-            document.getElementById('days12h').textContent = total12;
-            document.getElementById('totalHours').textContent = totalHours + 'h';
-            
-            const detailList = document.getElementById('detailList');
-            const detailContent = document.getElementById('detailContent');
-            
-            if (details.length > 0) {
-                detailList.style.display = 'block';
-                detailContent.innerHTML = details
-                    .sort((a, b) => {
-                        const dateA = new Date(a.split(':')[0].split('/').reverse().join('-'));
-                        const dateB = new Date(b.split(':')[0].split('/').reverse().join('-'));
-                        return dateA - dateB;
-                    })
-                    .map(d => `<div class="detail-item">${d}</div>`)
-                    .join('');
-            } else {
-                detailList.style.display = 'none';
-            }
+            document.getElementById('s11').textContent = h11;
+            document.getElementById('s12').textContent = h12;
+            document.getElementById('s13').textContent = h13;
+            document.getElementById('totalH').textContent = (h11*11 + h12*12 + h13*13);
         }
 
-        function validateForm() {
-            const name = document.getElementById('employeeName').value.trim();
-            
-            if (!name) {
-                alert('Digite seu nome!');
-                return false;
-            }
-            
-            if (!selectedShift) {
-                alert('Selecione seu turno!');
-                return false;
-            }
-            
-            if (selectedDays.size === 0) {
-                alert('Selecione pelo menos um dia!');
-                return false;
-            }
-            
-            return true;
+        function changeMonth(step) {
+            currentMonth.setMonth(currentMonth.getMonth() + step);
+            render();
         }
 
-        function previewPDF() {
-            if (!validateForm()) return;
+        function openPreview() {
+            const name = document.getElementById('employeeName').value;
+            if(!name || selectedDays.size === 0) return alert("Preencha seu nome e selecione os dias!");
             
-            const name = document.getElementById('employeeName').value.trim();
+            document.getElementById('pName').textContent = name;
+            document.getElementById('pMonth').textContent = document.getElementById('monthLabel').textContent;
+            document.getElementById('pNow').textContent = new Date().toLocaleDateString('pt-BR');
             
-            // Preenche dados
-            document.getElementById('pdfName').textContent = name;
-            document.getElementById('pdfShift').textContent = shiftNames[selectedShift];
-            document.getElementById('pdfDate').textContent = new Date().toLocaleDateString('pt-BR');
+            const body = document.getElementById('pTableBody');
+            body.innerHTML = '';
+            const sorted = Array.from(selectedDays.values()).sort((a,b) => a.d - b.d);
             
-            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                              'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-            document.getElementById('pdfMonth').textContent = 
-                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-            
-            // Preenche tabela
-            const tbody = document.getElementById('pdfTableBody');
-            tbody.innerHTML = '';
-            
-            const sortedDays = Array.from(selectedDays.entries())
-                .sort((a, b) => a[1].date - b[1].date);
-            
-            let total11 = 0, total13 = 0, total12 = 0, totalHours = 0;
-            const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-            
-            sortedDays.forEach(([key, data]) => {
-                if (data.hours === 11) total11++;
-                else if (data.hours === 13) total13++;
-                else if (data.hours === 12) total12++;
-                totalHours += data.hours;
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${data.date.toLocaleDateString('pt-BR')}</td>
-                    <td>${weekDays[data.date.getDay()]}</td>
-                    <td>${shiftNames[data.shift]}</td>
-                    <td>${shiftTimes[data.hours]}</td>
-                    <td>${data.hours}h</td>
-                `;
-                tbody.appendChild(row);
+            sorted.forEach(i => {
+                const dt = new Date(i.y, i.m, i.d);
+                const sem = dt.toLocaleDateString('pt-BR', {weekday:'long'});
+                const escala = i.h === 12 ? '19:00 - 07:00' : (i.h === 11 ? '07:00 - 18:00' : '06:00 - 19:00');
+                body.innerHTML += `<tr><td>${i.d}/${i.m+1}</td><td>${sem}</td><td>${escala}</td><td>${i.h}h</td></tr>`;
             });
+
+            document.getElementById('pTotalDays').textContent = selectedDays.size;
+            document.getElementById('pTotalHours').textContent = document.getElementById('totalH').textContent + " horas";
             
-            // Preenche resumo
-            document.getElementById('pdfTotalDays').textContent = selectedDays.size;
-            document.getElementById('pdfDays11').textContent = total11;
-            document.getElementById('pdfDays12').textContent = total12;
-            document.getElementById('pdfDays13').textContent = total13;
-            document.getElementById('pdfTotalHours').textContent = totalHours + ' horas';
-            
-            // Mostra modal
-            document.getElementById('pdfModal').style.display = 'block';
-            document.body.style.overflow = 'hidden';
+            document.getElementById('modal').style.display = 'block';
         }
 
-        function downloadPDF() {
+        function closePreview() { document.getElementById('modal').style.display = 'none'; }
+
+        async function generatePDF() {
             const element = document.getElementById('pdfContent');
-            const name = document.getElementById('employeeName').value.trim();
-            
+            const name = document.getElementById('employeeName').value.split(' ')[0];
             const opt = {
-                margin: [10, 10, 10, 10],
-                filename: `Plantao_Silo_${name.replace(/\s+/g, '_')}_${currentDate.getMonth()+1}_${currentDate.getFullYear()}.pdf`,
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: { 
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    logging: false,
-                    backgroundColor: '#ffffff'
-                },
-                jsPDF: { 
-                    unit: 'mm', 
-                    format: 'a4', 
-                    orientation: 'portrait',
-                    compress: false
-                },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                margin: 0.2,
+                filename: `Plantao_Silo_${name}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, width: 800, windowWidth: 800, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
             
-            // Gera PDF
-            html2pdf()
-                .set(opt)
-                .from(element)
-                .save()
-                .then(() => {
-                    console.log('PDF baixado com sucesso!');
-                    // Limpa após download
-                    setTimeout(() => {
-                        selectedDays.clear();
-                        document.getElementById('employeeName').value = '';
-                        selectShift(null);
-                        renderCalendar();
-                        updateSummary();
-                        closePDF();
-                    }, 1000);
-                })
-                .catch(err => {
-                    console.error('Erro:', err);
-                    alert('Erro ao gerar PDF. Tente novamente.');
-                });
+            const btn = document.getElementById('btnDownload');
+            btn.textContent = "AGUARDE...";
+            btn.disabled = true;
+
+            try {
+                await html2pdf().set(opt).from(element).save();
+                closePreview();
+            } catch (e) {
+                alert("Erro ao gerar PDF");
+            } finally {
+                btn.textContent = "⬇️ BAIXAR PDF AGORA";
+                btn.disabled = false;
+            }
         }
 
-        function closePDF() {
-            document.getElementById('pdfModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-
-        // Inicializa
-        window.addEventListener('load', init);
+        render();
     </script>
 </body>
 </html>
