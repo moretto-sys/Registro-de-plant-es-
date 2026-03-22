@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Registro de Plantões - Silo</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
@@ -55,7 +53,7 @@
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 16px; 
+            font-size: 16px; /* Evita zoom no iPhone */
         }
 
         .shift-selector {
@@ -77,7 +75,6 @@
         .shift-card.active {
             border-color: #2a5298;
             background: #eef2f7;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
         }
 
         .month-navigation {
@@ -126,27 +123,18 @@
         .day.selected {
             background: #2a5298;
             color: white;
-            border-color: #1e3c72;
         }
 
         .day-hours { font-size: 0.65em; font-weight: bold; }
 
-        .summary {
-            margin-top: 15px;
-            background: #f9f9f9;
-            padding: 12px;
-            border-radius: 10px;
-            border-left: 4px solid #1e3c72;
-        }
-
-        .total {
+        .total-box {
             background: #1e3c72;
             color: white;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
             font-weight: bold;
-            margin-top: 10px;
+            margin-top: 15px;
         }
 
         .btn-main {
@@ -161,13 +149,13 @@
             font-size: 16px;
         }
 
-        /* PDF HIDDEN CONTENT */
-        #pdfContent {
+        /* --- CONFIGURAÇÃO DO PDF (ESTILO PAPEL A4) --- */
+        #pdf-template {
+            display: none; /* Escondido na tela do celular */
             background: white;
-            width: 750px; 
-            position: absolute;
-            left: -9999px;
+            width: 800px; /* Força largura de desktop para o PDF */
             padding: 40px;
+            color: black;
         }
 
         .pdf-table {
@@ -182,39 +170,31 @@
             text-align: center;
         }
 
-        /* MODAL */
+        /* MODAL DE SUCESSO */
         .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.8);
             z-index: 1000;
-            padding: 20px;
         }
-
         .modal-content {
             background: white;
+            margin: 20% auto;
             padding: 20px;
-            border-radius: 12px;
+            width: 80%;
+            border-radius: 10px;
             text-align: center;
-            max-width: 400px;
-            margin: 100px auto;
         }
-
-        .btn-whatsapp {
+        .btn-wa {
             background: #25D366;
             color: white;
-            width: 100%;
+            display: block;
             padding: 15px;
-            border: none;
+            text-decoration: none;
             border-radius: 8px;
             font-weight: bold;
             margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            text-decoration: none;
         }
     </style>
 </head>
@@ -228,55 +208,45 @@
 
         <div class="content">
             <div class="form-group">
-                <label>Nome Completo</label>
-                <input type="text" id="userName" placeholder="Digite seu nome...">
+                <label>Nome do Segurança</label>
+                <input type="text" id="userName" placeholder="Ex: Moretto">
             </div>
 
             <div class="form-group">
-                <label>Seu Turno</label>
+                <label>Turno</label>
                 <div class="shift-selector">
-                    <div class="shift-card" id="btn-day" onclick="selectShift('day')">
-                        <strong>☀️ Diurno</strong>
-                        <div style="font-size: 0.7em; color: #2a5298;">Alterna 11h/13h</div>
-                    </div>
-                    <div class="shift-card" id="btn-night" onclick="selectShift('night')">
-                        <strong>🌙 Noturno</strong>
-                        <div style="font-size: 0.7em; color: #2a5298;">12h Fixas</div>
-                    </div>
+                    <div class="shift-card" id="card-day" onclick="setShift('day')">☀️ Diurno</div>
+                    <div class="shift-card" id="card-night" onclick="setShift('night')">🌙 Noturno</div>
                 </div>
             </div>
 
             <div class="month-navigation">
-                <button onclick="navMonth(-1)">←</button>
-                <strong id="labelMonth">Mês</strong>
-                <button onclick="navMonth(1)">→</button>
+                <button onclick="changeMonth(-1)">←</button>
+                <strong id="currentMonthLabel">Mês</strong>
+                <button onclick="changeMonth(1)">→</button>
             </div>
 
-            <div class="calendar" id="calMain"></div>
+            <div class="calendar" id="calendarGrid"></div>
 
-            <div class="summary">
-                <div style="display: flex; justify-content: space-between; font-size: 0.85em;">
-                    <span>11h: <b id="r11">0</b></span>
-                    <span>12h: <b id="r12">0</b></span>
-                    <span>13h: <b id="r13">0</b></span>
-                </div>
-                <div class="total">Total: <span id="totalHoursDisplay">0</span> horas</div>
+            <div class="total-box">
+                Total: <span id="totalHours">0</span> horas
             </div>
 
-            <button class="btn-main" onclick="openModal()">📄 GERAR E ENVIAR</button>
+            <button class="btn-main" onclick="generateAndSend()">📄 GERAR E ENVIAR PDF</button>
         </div>
     </div>
 
-    <div id="pdfContent">
-        <div style="text-align: center; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">
-            <h1 style="color: #1e3c72; font-size: 28px;">RELATÓRIO MENSAL DE PLANTÃO</h1>
-            <h2 style="color: #666;">POSTO DE TRABALHO: SILO</h2>
+    <div id="pdf-template">
+        <div style="text-align: center; border-bottom: 2px solid #1e3c72; padding-bottom: 10px; margin-bottom: 20px;">
+            <h1 style="color: #1e3c72; font-size: 24px;">RELATÓRIO DE PLANTÃO - POSTO SILO</h1>
+            <p>Controle de Horas Trabalhadas</p>
         </div>
-        
-        <div style="margin: 30px 0; font-size: 18px; line-height: 1.6;">
-            <p><b>Funcionário:</b> <span id="pdf_name"></span></p>
-            <p><b>Mês de Referência:</b> <span id="pdf_ref"></span></p>
-            <p><b>Data de Emissão:</b> <span id="pdf_date"></span></p>
+
+        <div style="margin-bottom: 20px; font-size: 16px; line-height: 1.6;">
+            <p><b>Segurança:</b> <span id="pdf-name"></span></p>
+            <p><b>Turno:</b> <span id="pdf-shift"></span></p>
+            <p><b>Mês de Referência:</b> <span id="pdf-ref"></span></p>
+            <p><b>Data de Emissão:</b> <span id="pdf-emit"></span></p>
         </div>
 
         <table class="pdf-table">
@@ -284,145 +254,138 @@
                 <tr style="background: #f2f2f2;">
                     <th>Data</th>
                     <th>Dia da Semana</th>
-                    <th>Horário do Plantão</th>
+                    <th>Horário</th>
                     <th>Horas</th>
                 </tr>
             </thead>
-            <tbody id="pdf_table_body"></tbody>
+            <tbody id="pdf-body"></tbody>
         </table>
 
-        <div style="background: #eef2f7; padding: 20px; border-radius: 8px; margin-top: 20px;">
-            <p style="font-size: 22px; color: #1e3c72;"><b>TOTAL DE HORAS TRABALHADAS: <span id="pdf_total"></span></b></p>
+        <div style="margin-top: 20px; background: #eee; padding: 15px; font-size: 18px;">
+            <b>TOTAL DE HORAS NO MÊS: <span id="pdf-total"></span></b>
         </div>
 
-        <div style="margin-top: 80px; display: flex; justify-content: space-between;">
-            <div style="border-top: 1px solid #000; width: 40%; text-align: center; padding-top: 10px;">Assinatura do Segurança</div>
-            <div style="border-top: 1px solid #000; width: 40%; text-align: center; padding-top: 10px;">Assinatura Supervisor</div>
+        <div style="margin-top: 60px; display: flex; justify-content: space-between;">
+            <div style="border-top: 1px solid #000; width: 40%; text-align: center; padding-top: 5px;">Assinatura do Segurança</div>
+            <div style="border-top: 1px solid #000; width: 40%; text-align: center; padding-top: 5px;">Supervisor / RH</div>
         </div>
     </div>
 
-    <div id="modalFinal" class="modal">
+    <div id="waModal" class="modal">
         <div class="modal-content">
-            <h3 style="color: #1e3c72;">PDF Pronto!</h3>
-            <p style="font-size: 0.9em; margin: 10px 0; color: #666;">O arquivo será baixado. Em seguida, clique no botão abaixo para avisar no WhatsApp.</p>
-            <button class="btn-whatsapp" id="btnDownload" onclick="doDownload()">1. Baixar PDF</button>
-            <a href="#" id="waLink" class="btn-whatsapp" style="display:none; background: #25D366;">2. Enviar p/ WhatsApp</a>
-            <button onclick="closeModal()" style="margin-top: 15px; background: none; border: none; color: #888; text-decoration: underline;">Cancelar</button>
+            <h3>✅ PDF Gerado!</h3>
+            <p>O arquivo foi baixado. Agora envie o aviso pelo WhatsApp.</p>
+            <a href="#" id="waLink" class="btn-wa">ENVIAR NO WHATSAPP</a>
+            <button onclick="document.getElementById('waModal').style.display='none'" style="margin-top:15px; border:none; background:none; color:gray;">Fechar</button>
         </div>
     </div>
 
     <script>
-        let viewDate = new Date();
-        let selectedShift = null;
-        let selectedDays = new Map();
-        const REF_DATE = new Date(2026, 2, 22); 
+        let date = new Date();
+        let shift = null;
+        let selected = new Map();
+        const REF_DATE = new Date(2026, 2, 22); // Base para escala 11/13
 
-        function selectShift(s) {
-            selectedShift = s;
-            document.getElementById('btn-day').classList.toggle('active', s === 'day');
-            document.getElementById('btn-night').classList.toggle('active', s === 'night');
-            renderCal();
+        function setShift(s) {
+            shift = s;
+            document.getElementById('card-day').className = 'shift-card ' + (s === 'day' ? 'active' : '');
+            document.getElementById('card-night').className = 'shift-card ' + (s === 'night' ? 'active' : '');
+            render();
         }
 
-        function getShiftHours(y, m, d) {
-            if (selectedShift === 'night') return 12;
-            const date = new Date(y, m, d);
-            const diff = Math.floor((date - REF_DATE) / (1000 * 60 * 60 * 24));
+        function getHours(y, m, d) {
+            if (shift === 'night') return 12;
+            const dObj = new Date(y, m, d);
+            const diff = Math.floor((dObj - REF_DATE) / 86400000);
             return (Math.abs(diff) % 2 === 0) ? 13 : 11;
         }
 
-        function renderCal() {
-            const y = viewDate.getFullYear(), m = viewDate.getMonth();
-            const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-            document.getElementById('labelMonth').textContent = `${monthNames[m]} ${y}`;
+        function render() {
+            const y = date.getFullYear(), m = date.getMonth();
+            const names = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+            document.getElementById('currentMonthLabel').textContent = `${names[m]} ${y}`;
 
-            const cal = document.getElementById('calMain');
-            cal.innerHTML = '';
-            ['D','S','T','Q','Q','S','S'].forEach(d => cal.innerHTML += `<div class="day-header">${d}</div>`);
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+            ['D','S','T','Q','Q','S','S'].forEach(d => grid.innerHTML += `<div class="day-header">${d}</div>`);
 
             const start = new Date(y, m, 1).getDay();
-            const daysInMonth = new Date(y, m + 1, 0).getDate();
+            const days = new Date(y, m + 1, 0).getDate();
 
-            for(let i=0; i<start; i++) cal.innerHTML += `<div></div>`;
+            for(let i=0; i<start; i++) grid.innerHTML += `<div></div>`;
 
-            for(let d=1; d<=daysInMonth; d++) {
+            for(let d=1; d<=days; d++) {
                 const key = `${y}-${m}-${d}`;
-                const hours = selectedShift ? getShiftHours(y, m, d) : null;
-                const isSelected = selectedDays.has(key);
+                const h = shift ? getHours(y, m, d) : null;
+                const active = selected.has(key);
                 
-                const el = document.createElement('div');
-                el.className = `day ${isSelected ? 'selected' : ''}`;
-                el.innerHTML = `<span>${d}</span>${hours ? `<span class="day-hours">${hours}h</span>` : ''}`;
-                el.onclick = () => {
-                    if(!selectedShift) return alert("Selecione o turno primeiro!");
-                    isSelected ? selectedDays.delete(key) : selectedDays.set(key, {d, m, y, h: hours});
-                    renderCal();
+                const div = document.createElement('div');
+                div.className = `day ${active ? 'selected' : ''}`;
+                div.innerHTML = `<span>${d}</span>${h ? `<span class="day-hours">${h}h</span>` : ''}`;
+                div.onclick = () => {
+                    if(!shift) return alert("Escolha o turno!");
+                    active ? selected.delete(key) : selected.set(key, {d, m, y, h});
+                    render();
                     updateSum();
                 };
-                cal.appendChild(el);
+                grid.appendChild(div);
             }
         }
 
         function updateSum() {
-            let h11=0, h12=0, h13=0;
-            selectedDays.forEach(v => { if(v.h==11) h11++; if(v.h==12) h12++; if(v.h==13) h13++; });
-            document.getElementById('r11').textContent = h11;
-            document.getElementById('r12').textContent = h12;
-            document.getElementById('r13').textContent = h13;
-            document.getElementById('totalHoursDisplay').textContent = (h11*11 + h12*12 + h13*13);
+            let total = 0;
+            selected.forEach(v => total += v.h);
+            document.getElementById('totalHours').textContent = total;
         }
 
-        function navMonth(dir) { viewDate.setMonth(viewDate.getMonth() + dir); renderCal(); }
+        function changeMonth(s) { date.setMonth(date.getMonth() + s); render(); }
 
-        function openModal() {
+        async function generateAndSend() {
             const name = document.getElementById('userName').value;
-            if(!name || selectedDays.size === 0) return alert("Preencha seu nome e selecione os plantões!");
-            document.getElementById('modalFinal').style.display = 'block';
-            document.getElementById('waLink').style.display = 'none';
-        }
+            if(!name || selected.size === 0) return alert("Nome ou dias faltando!");
 
-        function closeModal() { document.getElementById('modalFinal').style.display = 'none'; }
-
-        async function doDownload() {
-            const name = document.getElementById('userName').value;
-            const monthLabel = document.getElementById('labelMonth').textContent;
+            // Preenche o template invisível
+            document.getElementById('pdf-name').textContent = name;
+            document.getElementById('pdf-shift').textContent = shift === 'day' ? 'Diurno' : 'Noturno';
+            document.getElementById('pdf-ref').textContent = document.getElementById('currentMonthLabel').textContent;
+            document.getElementById('pdf-emit').textContent = new Date().toLocaleDateString('pt-BR');
             
-            // Preencher PDF
-            document.getElementById('pdf_name').textContent = name;
-            document.getElementById('pdf_ref').textContent = monthLabel;
-            document.getElementById('pdf_date').textContent = new Date().toLocaleDateString('pt-BR');
-            
-            const tbody = document.getElementById('pdf_table_body');
+            const tbody = document.getElementById('pdf-body');
             tbody.innerHTML = '';
-            const sorted = Array.from(selectedDays.values()).sort((a,b) => a.d - b.d);
-            
+            const sorted = Array.from(selected.values()).sort((a,b) => a.d - b.d);
             sorted.forEach(i => {
-                const dt = new Date(i.y, i.m, i.d);
-                const weekDay = dt.toLocaleDateString('pt-BR', {weekday:'long'});
-                const time = i.h === 12 ? '19:00 - 07:00' : (i.h === 11 ? '07:00 - 18:00' : '06:00 - 19:00');
-                tbody.innerHTML += `<tr><td>${i.d}/${i.m+1}</td><td>${weekDay}</td><td>${time}</td><td>${i.h}h</td></tr>`;
+                const diaSem = new Date(i.y, i.m, i.d).toLocaleDateString('pt-BR', {weekday:'long'});
+                const horario = i.h === 12 ? '19:00 - 07:00' : (i.h === 11 ? '07:00 - 18:00' : '06:00 - 19:00');
+                tbody.innerHTML += `<tr><td>${i.d}/${i.m+1}</td><td>${diaSem}</td><td>${horario}</td><td>${i.h}h</td></tr>`;
             });
+            document.getElementById('pdf-total').textContent = document.getElementById('totalHours').textContent + " HORAS";
 
-            document.getElementById('pdf_total').textContent = document.getElementById('totalHoursDisplay').textContent + " HORAS";
-
+            // Gera o PDF com largura de desktop para não cortar
+            const element = document.getElementById('pdf-template');
+            element.style.display = 'block'; // Torna visível para o script capturar
+            
             const opt = {
-                margin: 0.3,
-                filename: `Plantao_Silo_${name.split(' ')[0]}.pdf`,
+                margin: 0.5,
+                filename: `Plantao_Silo_${name}.pdf`,
                 html2canvas: { scale: 2, width: 800, windowWidth: 800 },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
 
-            await html2pdf().set(opt).from(document.getElementById('pdfContent')).save();
-            
-            // Preparar WhatsApp
-            const total = document.getElementById('totalHoursDisplay').textContent;
-            const text = `Olá, segue meu registro de plantão do Posto Silo.\n\n*Funcionário:* ${name}\n*Mês:* ${monthLabel}\n*Total:* ${total} horas.`;
-            document.getElementById('waLink').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-            document.getElementById('waLink').style.display = 'flex';
-            document.getElementById('btnDownload').textContent = "✅ Baixado";
+            try {
+                await html2pdf().set(opt).from(element).save();
+                element.style.display = 'none'; // Esconde de volta
+
+                // Prepara WhatsApp
+                const msg = `Olá, segue meu registro de plantão (${name}). Total: ${document.getElementById('totalHours').textContent} horas.`;
+                document.getElementById('waLink').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+                document.getElementById('waModal').style.display = 'block';
+            } catch (e) {
+                alert("Erro ao gerar PDF");
+                element.style.display = 'none';
+            }
         }
 
-        renderCal();
+        render();
     </script>
 </body>
 </html>
