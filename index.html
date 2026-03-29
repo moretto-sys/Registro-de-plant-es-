@@ -1,479 +1,547 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Registro Silo</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Registro Silo</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background: #1a2a6c;
+  color: #333;
+}
+body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0;
+}
+.container {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100dvh;
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  background: #1e3c72;
+  color: white;
+  padding: 18px 16px 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.header h2 { font-size: 20px; margin-bottom: 2px; }
+.header p { font-size: 13px; opacity: 0.85; }
+.content {
+  padding: 14px 14px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: 13px;
+  color: #1e3c72;
+}
+input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+.shift-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.btn-shift {
+  padding: 11px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  background: #f9f9f9;
+  font-weight: bold;
+  font-size: 14px;
+}
+.btn-shift.active { border-color: #1e3c72; background: #1e3c72; color: white; }
+.nav-month {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #eee;
+  padding: 9px 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.nav-month span { font-weight: bold; font-size: 15px; }
+.nav-month button {
+  background: #1e3c72;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.day {
+  aspect-ratio: 1;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  line-height: 1.2;
+  padding: 2px 0;
+  min-height: 0;
+}
+.day b { font-size: 12px; }
+.day .hr-label { font-size: 7.5px; opacity: 0.9; }
+.day .horario  { font-size: 6.5px; opacity: 0.85; letter-spacing: -0.3px; }
+.day.selected-Diurno { background: #ff9800; color: white; font-weight: bold; }
+.day.selected-Noturno { background: #1e3c72; color: white; font-weight: bold; }
+.day.selected-Ambos { background: linear-gradient(135deg, #ff9800 50%, #1e3c72 50%); color: white; font-weight: bold; }
+.total-box {
+  background: #f4f4f4;
+  padding: 13px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 16px;
+  border-left: 6px solid #1e3c72;
+  margin-bottom: 12px;
+}
+.btn-main {
+  width: 100%;
+  padding: 16px;
+  background: #25D366;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
 
-        html, body {
-            height: 100%;
-            font-family: 'Segoe UI', sans-serif;
-            background: #1a2a6c;
-            color: #333;
-        }
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 1000;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: 18px 18px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 95dvh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -6px 30px rgba(0,0,0,0.3);
+}
+.modal-header {
+  background: #1e3c72;
+  color: white;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 18px 18px 0 0;
+  flex-shrink: 0;
+}
+.modal-header span { font-weight: bold; font-size: 15px; }
+.modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 6px;
+}
+.modal-body {
+  padding: 14px;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  min-height: 50dvh;
+}
+.txt-output {
+  width: 100%;
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  font-family: monospace;
+  font-size: 14px;
+  resize: none;
+  color: #222;
+  background: #fafafa;
+  line-height: 1.7;
+  min-height: 100%;
+}
+.modal-footer {
+  padding: 10px 14px 20px;
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.btn-copy {
+  flex: 1;
+  padding: 14px;
+  background: #25D366;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.btn-copy.copied { background: #128C7E; }
+.btn-close-modal {
+  flex: 1;
+  padding: 14px;
+  background: #eee;
+  color: #333;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+}
 
-        body {
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 0;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 480px;
-            min-height: 100dvh;
-            background: white;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            background: #1e3c72;
-            color: white;
-            padding: 18px 16px 14px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-        .header h2 { font-size: 20px; margin-bottom: 2px; }
-        .header p  { font-size: 13px; opacity: 0.85; }
-
-        .content {
-            padding: 14px 14px 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 13px;
-            color: #1e3c72;
-        }
-
-        input {
-            width: 100%;
-            padding: 11px 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            font-size: 15px;
-        }
-
-        .shift-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .btn-shift {
-            padding: 11px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            background: #f9f9f9;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .btn-shift.active { border-color: #1e3c72; background: #1e3c72; color: white; }
-
-        .nav-month {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #eee;
-            padding: 9px 10px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-        .nav-month span { font-weight: bold; font-size: 15px; }
-        .nav-month button {
-            background: #1e3c72;
-            color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-        .day {
-            aspect-ratio: 1;
-            border: 1px solid #eee;
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            cursor: pointer;
-            line-height: 1.2;
-        }
-        .day b { font-size: 13px; }
-        .day span { font-size: 8px; opacity: 0.9; }
-        .day.selected-Diurno  { background: #ff9800; color: white; font-weight: bold; }
-        .day.selected-Noturno { background: #1e3c72; color: white; font-weight: bold; }
-        .day.selected-Ambos   { background: linear-gradient(135deg, #ff9800 50%, #1e3c72 50%); color: white; font-weight: bold; }
-
-        .total-box {
-            background: #f4f4f4;
-            padding: 13px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 16px;
-            border-left: 6px solid #1e3c72;
-            margin-bottom: 12px;
-        }
-
-        .btn-main {
-            width: 100%;
-            padding: 16px;
-            background: #25D366;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: auto;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.65);
-            z-index: 1000;
-            align-items: flex-end;
-            justify-content: center;
-        }
-        .modal-overlay.open { display: flex; }
-
-        .modal {
-            background: white;
-            border-radius: 18px 18px 0 0;
-            width: 100%;
-            max-width: 480px;
-            max-height: 95dvh;  /* AUMENTADO de 85dvh para 95dvh */
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 -6px 30px rgba(0,0,0,0.3);
-        }
-        .modal-header {
-            background: #1e3c72;
-            color: white;
-            padding: 16px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 18px 18px 0 0;
-            flex-shrink: 0;
-        }
-        .modal-header span { font-weight: bold; font-size: 15px; }
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 22px;
-            cursor: pointer;
-            line-height: 1;
-            padding: 2px 6px;
-        }
-        .modal-body {
-            padding: 14px;
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-            min-height: 50dvh;  /* ADICIONADO: altura mínima para garantir espaço de visualização */
-        }
-        .txt-output {
-            width: 100%;
-            flex: 1;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 12px;
-            font-family: monospace;
-            font-size: 14px;  /* AUMENTADO de 13px para 14px */
-            resize: none;
-            color: #222;
-            background: #fafafa;
-            line-height: 1.7;
-            min-height: 100%;  /* ADICIONADO: garante que ocupe todo espaço disponível */
-        }
-        .modal-footer {
-            padding: 10px 14px 20px;
-            display: flex;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-        .btn-copy {
-            flex: 1;
-            padding: 14px;
-            background: #25D366;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: background 0.2s;
-        }
-        .btn-copy.copied { background: #128C7E; }
-        .btn-close-modal {
-            flex: 1;
-            padding: 14px;
-            background: #eee;
-            color: #333;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 15px;
-            cursor: pointer;
-        }
-    </style>
+/* Botão limpar mês */
+.btn-clear {
+  width: 100%;
+  padding: 10px;
+  background: #fff0f0;
+  color: #c0392b;
+  border: 1.5px solid #e74c3c;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.btn-clear:active { background: #ffe0e0; }
+</style>
 </head>
 <body>
-
 <div class="container">
-    <div class="header">
-        <h2>Posto Silo</h2>
-        <p>Controle de Plantão</p>
+  <div class="header">
+    <h2>Posto Silo</h2>
+    <p>Controle de Plantão</p>
+  </div>
+  <div class="content">
+    <label>Nome do Segurança</label>
+    <input type="text" id="userName" placeholder="Coloque seu nome aqui">
+
+    <label>Turno para Seleção</label>
+    <div class="shift-grid">
+      <div class="btn-shift active" id="shift-day" onclick="updateShift('Diurno')">☀️ Diurno</div>
+      <div class="btn-shift" id="shift-night" onclick="updateShift('Noturno')">🌙 Noturno</div>
     </div>
-    <div class="content">
-        <label>Nome do Segurança</label>
-        <input type="text" id="userName" placeholder="Coloque seu nome aqui">
 
-        <label>Turno para Seleção</label>
-        <div class="shift-grid">
-            <div class="btn-shift active" id="shift-day" onclick="updateShift('Diurno')">☀️ Diurno</div>
-            <div class="btn-shift" id="shift-night" onclick="updateShift('Noturno')">🌙 Noturno</div>
-        </div>
-
-        <div class="nav-month">
-            <button onclick="navMonth(-1)">‹</button>
-            <span id="monthDisplay"></span>
-            <button onclick="navMonth(1)">›</button>
-        </div>
-
-        <div class="calendar" id="calendar"></div>
-
-        <div class="total-box">Total Acumulado: <b id="totalH">0</b> horas</div>
-
-        <button class="btn-main" onclick="openTextModal()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.19-1.58A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.79 0-3.55-.48-5.09-1.38l-.36-.22-3.78.97.99-3.68-.24-.38A9.94 9.94 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.94 9.94 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.42-7.37c-.3-.15-1.76-.87-2.03-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.68-1.62-.93-2.22-.24-.58-.49-.5-.68-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.7.25-1.3.17-1.41-.07-.12-.27-.2-.57-.35z"/></svg>
-            Exportar Relatório
-        </button>
+    <div class="nav-month">
+      <button onclick="navMonth(-1)">‹</button>
+      <span id="monthDisplay"></span>
+      <button onclick="navMonth(1)">›</button>
     </div>
+
+    <div class="calendar" id="calendar"></div>
+
+    <div class="total-box">Total Acumulado: <b id="totalH">0</b> horas</div>
+
+    <button class="btn-clear" onclick="clearCurrentMonth()">🗑️ Limpar plantões deste mês</button>
+
+    <button class="btn-main" onclick="openTextModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.19-1.58A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.79 0-3.55-.48-5.09-1.38l-.36-.22-3.78.97.99-3.68-.24-.38A9.94 9.94 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.94 9.94 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.42-7.37c-.3-.15-1.76-.87-2.03-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.68-1.62-.93-2.22-.24-.58-.49-.5-.68-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.7.25-1.3.17-1.41-.07-.12-.27-.2-.57-.35z"/></svg>
+      Exportar Relatório
+    </button>
+  </div>
 </div>
 
-<!-- Modal sobe de baixo (estilo sheet) -->
+<!-- Modal -->
 <div class="modal-overlay" id="textModal">
-    <div class="modal">
-        <div class="modal-header">
-            <span>📋 Relatório para WhatsApp</span>
-            <button class="modal-close" onclick="closeTextModal()">&#x2715;</button>
-        </div>
-        <div class="modal-body">
-            <textarea class="txt-output" id="txtOutput" readonly></textarea>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-copy" id="btnCopy" onclick="copyText()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copiar
-            </button>
-            <button class="btn-close-modal" onclick="closeTextModal()">Fechar</button>
-        </div>
+  <div class="modal">
+    <div class="modal-header">
+      <span>📋 Relatório para WhatsApp</span>
+      <button class="modal-close" onclick="closeTextModal()">&#x2715;</button>
     </div>
+    <div class="modal-body">
+      <textarea class="txt-output" id="txtOutput" readonly></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-copy" id="btnCopy" onclick="copyText()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copiar
+      </button>
+      <button class="btn-close-modal" onclick="closeTextModal()">Fechar</button>
+    </div>
+  </div>
 </div>
 
 <script>
-    let date = new Date();
-    let currentSelectedShift = 'Diurno';
-    let selectedRecords = new Map();
-    const REF_DATE = new Date(2026, 2, 22);
+const STORAGE_KEY = 'silo_plantons_v1';
+const NAME_KEY    = 'silo_nome_v1';
 
-    function updateShift(s) {
-        currentSelectedShift = s;
-        document.getElementById('shift-day').className  = 'btn-shift ' + (s === 'Diurno'  ? 'active' : '');
-        document.getElementById('shift-night').className = 'btn-shift ' + (s === 'Noturno' ? 'active' : '');
-        render();
+let date = new Date();
+let currentSelectedShift = 'Diurno';
+
+// selectedRecords: Map de chave "y-m-d-Turno" → { d, m, y, h, s }
+let selectedRecords = new Map();
+
+const REF_DATE         = new Date(2026, 2, 22); // referência Diurno
+const REF_DATE_NOTURNO = new Date(2026, 2, 29); // referência Noturno (29/03 = 18h)
+
+// ── Persistência ──────────────────────────────────────────────
+
+function saveData() {
+  const obj = {};
+  selectedRecords.forEach((v, k) => { obj[k] = v; });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const obj = JSON.parse(raw);
+    selectedRecords = new Map(Object.entries(obj));
+  } catch(e) {
+    selectedRecords = new Map();
+  }
+}
+
+function saveName() {
+  const name = document.getElementById('userName').value;
+  localStorage.setItem(NAME_KEY, name);
+}
+
+function loadName() {
+  const saved = localStorage.getItem(NAME_KEY);
+  if (saved) document.getElementById('userName').value = saved;
+}
+
+// ── Lógica principal ──────────────────────────────────────────
+
+function updateShift(s) {
+  currentSelectedShift = s;
+  document.getElementById('shift-day').className   = 'btn-shift ' + (s === 'Diurno'  ? 'active' : '');
+  document.getElementById('shift-night').className = 'btn-shift ' + (s === 'Noturno' ? 'active' : '');
+  render();
+}
+
+function calcH(y, m, d, s) {
+  if (s === 'Noturno') return 12;
+  const dt   = new Date(y, m, d);
+  const diff = Math.floor((dt - REF_DATE) / 86400000);
+  return (Math.abs(diff) % 2 === 0) ? 13 : 11;
+}
+
+function getHorarioNoturno(y, m, d) {
+  // 29/03/2026 = 18h → diff 0 = 18h (par)
+  const dt   = new Date(y, m, d);
+  const diff = Math.floor((dt - REF_DATE_NOTURNO) / 86400000);
+  return (Math.abs(diff) % 2 === 0)
+    ? { label: '18h-06h' }
+    : { label: '19h-07h' };
+}
+
+function render() {
+  const y = date.getFullYear(), m = date.getMonth();
+  const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                  "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  document.getElementById('monthDisplay').innerText = months[m] + ' ' + y;
+
+  const cal   = document.getElementById('calendar');
+  cal.innerHTML = '';
+
+  const start = new Date(y, m, 1).getDay();
+  const total = new Date(y, m + 1, 0).getDate();
+
+  for (let i = 0; i < start; i++) cal.innerHTML += '<div></div>';
+
+  for (let d = 1; d <= total; d++) {
+    const keyDay     = `${y}-${m}-${d}`;
+    const keyRecord  = `${keyDay}-${currentSelectedShift}`;
+    const hasDiurno  = selectedRecords.has(`${keyDay}-Diurno`);
+    const hasNoturno = selectedRecords.has(`${keyDay}-Noturno`);
+
+    let cls = '';
+    if (hasDiurno && hasNoturno) cls = 'selected-Ambos';
+    else if (hasDiurno)          cls = 'selected-Diurno';
+    else if (hasNoturno)         cls = 'selected-Noturno';
+
+    const h = calcH(y, m, d, currentSelectedShift);
+
+    let horarioMini;
+    if (currentSelectedShift === 'Noturno') {
+      horarioMini = getHorarioNoturno(y, m, d).label;
+    } else {
+      horarioMini = h === 13 ? '06h-19h' : '07h-18h';
     }
 
-    function calcH(y, m, d, s) {
-        if (s === 'Noturno') return 12;
-        const dt   = new Date(y, m, d);
-        const diff = Math.floor((dt - REF_DATE) / 86400000);
-        return (Math.abs(diff) % 2 === 0) ? 13 : 11;
+    const div = document.createElement('div');
+    div.className = `day ${cls}`;
+    div.innerHTML = `<b>${d}</b><span class="hr-label">${currentSelectedShift === 'Diurno' ? h + 'h' : '12h'}</span><span class="horario">${horarioMini}</span>`;
+
+    div.onclick = () => {
+      if (selectedRecords.has(keyRecord)) {
+        selectedRecords.delete(keyRecord);
+      } else {
+        selectedRecords.set(keyRecord, { d, m, y, h, s: currentSelectedShift });
+      }
+      saveData();   // ← persiste a cada clique
+      render();
+      updateTotal();
+    };
+
+    cal.appendChild(div);
+  }
+}
+
+function updateTotal() {
+  let t = 0;
+  selectedRecords.forEach(v => t += v.h);
+  document.getElementById('totalH').innerText = t;
+}
+
+function navMonth(v) {
+  date.setMonth(date.getMonth() + v);
+  render();
+}
+
+function clearCurrentMonth() {
+  const y = date.getFullYear(), m = date.getMonth();
+  if (!confirm(`Limpar todos os plantões de ${document.getElementById('monthDisplay').innerText}?`)) return;
+  selectedRecords.forEach((_, k) => {
+    // chave: "y-m-d-Turno"
+    const parts = k.split('-');
+    if (parseInt(parts[0]) === y && parseInt(parts[1]) === m) {
+      selectedRecords.delete(k);
+    }
+  });
+  saveData();
+  render();
+  updateTotal();
+}
+
+function getSorted() {
+  return Array.from(selectedRecords.values()).sort((a, b) => {
+    if (a.y !== b.y) return a.y - b.y;
+    if (a.m !== b.m) return a.m - b.m;
+    if (a.d !== b.d) return a.d - b.d;
+    return a.s === 'Diurno' ? -1 : 1;
+  });
+}
+
+function openTextModal() {
+  if (selectedRecords.size === 0) return alert("Selecione os plantões!");
+  const name   = document.getElementById('userName').value.trim() || '—';
+  const ref    = document.getElementById('monthDisplay').innerText;
+  const sorted = getSorted();
+
+  let totalH = 0;
+  let txt = '';
+  txt += `📋 *RELATÓRIO DE PLANTÕES*\n`;
+  txt += `🏢 Posto: SILO\n`;
+  txt += `👤 Segurança: ${name}\n`;
+  txt += `📅 Referência: ${ref}\n`;
+  txt += `─────────────────────────\n`;
+
+  sorted.forEach(i => {
+    const dt     = new Date(i.y, i.m, i.d);
+    const diaSem = dt.toLocaleDateString('pt-BR', { weekday: 'short' })
+                     .replace('.','').replace('-feira','');
+    const data   = `${i.d.toString().padStart(2,'0')}/${(i.m+1).toString().padStart(2,'0')}`;
+    const icon   = i.s === 'Diurno' ? '☀️' : '🌙';
+
+    let horario;
+    if (i.s === 'Noturno') {
+      horario = getHorarioNoturno(i.y, i.m, i.d).label.replace('-', '–');
+    } else {
+      horario = i.h === 13 ? '06h–19h' : '07h–18h';
     }
 
-    // NOVA FUNÇÃO: Retorna o horário noturno baseado no dia ímpar/par
-    function getHorarioNoturno(dia) {
-        if (dia % 2 === 1) {
-            return { inicio: '18h', fim: '06h', label: '18h-06h' }; // Ímpar
-        } else {
-            return { inicio: '19h', fim: '07h', label: '19h-07h' }; // Par
-        }
-    }
+    txt += `${icon} ${data} (${diaSem}) | ${i.s} | ${horario} | *${i.h}h*\n`;
+    totalH += i.h;
+  });
 
-    function render() {
-        const y = date.getFullYear(), m = date.getMonth();
-        const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                        "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-        document.getElementById('monthDisplay').innerText = months[m] + ' ' + y;
+  txt += `─────────────────────────\n`;
+  txt += `⏱️ *TOTAL: ${totalH} HORAS*`;
 
-        const cal   = document.getElementById('calendar');
-        cal.innerHTML = '';
-        const start = new Date(y, m, 1).getDay();
-        const total = new Date(y, m + 1, 0).getDate();
+  document.getElementById('txtOutput').value = txt;
+  const btn = document.getElementById('btnCopy');
+  btn.classList.remove('copied');
+  btn.innerHTML = iconCopy() + ' Copiar';
+  document.getElementById('textModal').classList.add('open');
+}
 
-        for (let i = 0; i < start; i++) cal.innerHTML += '<div></div>';
+function closeTextModal() {
+  document.getElementById('textModal').classList.remove('open');
+}
 
-        for (let d = 1; d <= total; d++) {
-            const keyDay    = `${y}-${m}-${d}`;
-            const keyRecord = `${keyDay}-${currentSelectedShift}`;
-            const hasDiurno  = selectedRecords.has(`${keyDay}-Diurno`);
-            const hasNoturno = selectedRecords.has(`${keyDay}-Noturno`);
+function copyText() {
+  navigator.clipboard.writeText(document.getElementById('txtOutput').value).then(() => {
+    const btn = document.getElementById('btnCopy');
+    btn.classList.add('copied');
+    btn.innerHTML = '✅ Copiado!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = iconCopy() + ' Copiar';
+    }, 2500);
+  });
+}
 
-            let cls = '';
-            if (hasDiurno && hasNoturno) cls = 'selected-Ambos';
-            else if (hasDiurno)  cls = 'selected-Diurno';
-            else if (hasNoturno) cls = 'selected-Noturno';
+function iconCopy() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
+}
 
-            const h   = calcH(y, m, d, currentSelectedShift);
-            
-            // LÓGICA MODIFICADA: Verifica turno e aplica horário correspondente
-            let horarioMini;
-            if (currentSelectedShift === 'Noturno') {
-                horarioMini = getHorarioNoturno(d).label;
-            } else {
-                horarioMini = h === 13 ? '06h-19h' : '07h-18h';
-            }
+// Nome salvo automaticamente
+document.getElementById('userName').addEventListener('input', saveName);
 
-            const div = document.createElement('div');
-            div.className = `day ${cls}`;
-            div.innerHTML = `<b>${d}</b><span>${currentSelectedShift === 'Diurno' ? h + 'h' : '12h'}</span><span style="font-size:7px;opacity:0.85;letter-spacing:-0.3px">${horarioMini}</span>`;
-
-            div.onclick = () => {
-                if (selectedRecords.has(keyRecord)) {
-                    selectedRecords.delete(keyRecord);
-                } else {
-                    selectedRecords.set(keyRecord, { d, m, y, h, s: currentSelectedShift });
-                }
-                render();
-                updateTotal();
-            };
-            cal.appendChild(div);
-        }
-    }
-
-    function updateTotal() {
-        let t = 0;
-        selectedRecords.forEach(v => t += v.h);
-        document.getElementById('totalH').innerText = t;
-    }
-
-    function navMonth(v) {
-        date.setMonth(date.getMonth() + v);
-        render();
-    }
-
-    function getSorted() {
-        return Array.from(selectedRecords.values()).sort((a, b) => {
-            if (a.y !== b.y) return a.y - b.y;
-            if (a.m !== b.m) return a.m - b.m;
-            if (a.d !== b.d) return a.d - b.d;
-            return a.s === 'Diurno' ? -1 : 1;
-        });
-    }
-
-    function openTextModal() {
-        if (selectedRecords.size === 0) return alert("Selecione os plantões!");
-        const name   = document.getElementById('userName').value.trim() || '—';
-        const ref    = document.getElementById('monthDisplay').innerText;
-        const sorted = getSorted();
-        let totalH   = 0;
-
-        let txt = '';
-        txt += `📋 *RELATÓRIO DE PLANTÕES*\n`;
-        txt += `🏢 Posto: SILO\n`;
-        txt += `👤 Segurança: ${name}\n`;
-        txt += `📅 Referência: ${ref}\n`;
-        txt += `─────────────────────────\n`;
-
-        sorted.forEach(i => {
-            const dt     = new Date(i.y, i.m, i.d);
-            const diaSem = dt.toLocaleDateString('pt-BR', { weekday: 'short' })
-                             .replace('.','').replace('-feira','');
-            const data   = `${i.d.toString().padStart(2,'0')}/${(i.m+1).toString().padStart(2,'0')}`;
-            const icon   = i.s === 'Diurno' ? '☀️' : '🌙';
-            
-            // LÓGICA MODIFICADA: Aplica horário noturno correto no relatório
-            let horario;
-            if (i.s === 'Noturno') {
-                horario = getHorarioNoturno(i.d).label.replace('-', '–');
-            } else {
-                horario = i.h === 13 ? '06h–19h' : '07h–18h';
-            }
-            
-            txt += `${icon} ${data} (${diaSem}) | ${i.s} | ${horario} | *${i.h}h*\n`;
-            totalH += i.h;
-        });
-
-        txt += `─────────────────────────\n`;
-        txt += `⏱️ *TOTAL: ${totalH} HORAS*`;
-
-        document.getElementById('txtOutput').value = txt;
-
-        const btn = document.getElementById('btnCopy');
-        btn.classList.remove('copied');
-        btn.innerHTML = iconCopy() + ' Copiar';
-        document.getElementById('textModal').classList.add('open');
-    }
-
-    function closeTextModal() {
-        document.getElementById('textModal').classList.remove('open');
-    }
-
-    function copyText() {
-        navigator.clipboard.writeText(document.getElementById('txtOutput').value).then(() => {
-            const btn = document.getElementById('btnCopy');
-            btn.classList.add('copied');
-            btn.innerHTML = '✅ Copiado!';
-            setTimeout(() => {
-                btn.classList.remove('copied');
-                btn.innerHTML = iconCopy() + ' Copiar';
-            }, 2500);
-        });
-    }
-
-    function iconCopy() {
-        return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
-    }
-
-    updateShift('Diurno');
+// Inicialização
+loadData();
+loadName();
+updateShift('Diurno');
+updateTotal();
 </script>
 </body>
 </html>
