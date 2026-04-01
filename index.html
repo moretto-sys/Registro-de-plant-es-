@@ -316,19 +316,7 @@ const REF_DATE         = new Date(2026, 2, 22);
 const REF_DATE_NOTURNO = new Date(2026, 2, 29);
 
 function saveData() {
-  const obj = {};
-  selectedRecords.forEach((v, k) => { obj[k] = v; });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
-}
-
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    selectedRecords = new Map(Object.entries(JSON.parse(raw)));
-  } catch(e) {
-    selectedRecords = new Map();
-  }
+  // plantões não persistem entre sessões — intencionalmente vazio
 }
 
 function saveName() {
@@ -477,7 +465,6 @@ function sendWhatsApp() {
 }
 
 document.getElementById('userName').addEventListener('input', saveName);
-loadData();
 loadName();
 updateShift('Diurno');
 updateTotal();
