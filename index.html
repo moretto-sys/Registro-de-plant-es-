@@ -1,3 +1,4 @@
+cat > /mnt/user-data/outputs/registro_silo_v2.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -76,6 +77,11 @@ input {
   font-size: 14px;
 }
 .btn-shift.active { border-color: #1e3c72; background: #1e3c72; color: white; }
+.btn-shift.disabled-shift {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 .nav-month {
   display: flex;
   justify-content: space-between;
@@ -96,12 +102,37 @@ input {
   font-size: 16px;
   cursor: pointer;
 }
+.legend {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
   text-align: center;
   margin-bottom: 12px;
+}
+.day-header {
+  font-size: 10px;
+  font-weight: bold;
+  color: #888;
+  padding: 3px 0;
+  text-align: center;
 }
 .day {
   aspect-ratio: 1;
@@ -116,12 +147,16 @@ input {
   line-height: 1.2;
   padding: 2px 0;
   min-height: 0;
+  position: relative;
 }
 .day b { font-size: 12px; }
 .day .hr-label { font-size: 7.5px; opacity: 0.9; }
 .day .horario  { font-size: 6.5px; opacity: 0.85; letter-spacing: -0.3px; }
-.day.selected-Diurno  { background: #ff9800; color: white; font-weight: bold; }
-.day.selected-Noturno { background: #1e3c72; color: white; font-weight: bold; }
+.day.weekday { background: #f0f4ff; border-color: #c8d5f5; }
+.day.weekend { background: #fff8e8; border-color: #f0d890; }
+.day.not-applicable { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+.day.selected-Diurno  { background: #ff9800; color: white; font-weight: bold; border-color: #e68900; }
+.day.selected-Noturno { background: #1e3c72; color: white; font-weight: bold; border-color: #152d56; }
 .day.selected-Ambos   { background: linear-gradient(135deg, #ff9800 50%, #1e3c72 50%); color: white; font-weight: bold; }
 .total-box {
   background: #f4f4f4;
@@ -132,6 +167,16 @@ input {
   border-left: 6px solid #1e3c72;
   margin-bottom: 12px;
 }
+.info-box {
+  background: #e8f0fe;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #1e3c72;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.info-box b { display: block; margin-bottom: 3px; font-size: 13px; }
 .btn-main {
   width: 100%;
   padding: 16px;
@@ -149,8 +194,6 @@ input {
   flex-shrink: 0;
 }
 .btn-main:active { background: #1ebe5a; }
-
-/* ── Modal ── */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -257,16 +300,30 @@ input {
     <label>Nome do Segurança</label>
     <input type="text" id="userName" placeholder="Coloque seu nome aqui">
 
+    <div class="info-box">
+      <b>📋 Regras de Horário</b>
+      🗓️ <b>Semana:</b> apenas Noturno — 17h às 07h (14h)<br>
+      ☀️ <b>Fim de semana Diurno:</b> 07h às 19h (12h)<br>
+      🌙 <b>Fim de semana Noturno:</b> 19h às 07h (12h)
+    </div>
+
     <label>Turno para Seleção</label>
     <div class="shift-grid">
-      <div class="btn-shift active" id="shift-day"   onclick="updateShift('Diurno')">☀️ Diurno</div>
-      <div class="btn-shift"        id="shift-night" onclick="updateShift('Noturno')">🌙 Noturno</div>
+      <div class="btn-shift" id="shift-day"   onclick="updateShift('Diurno')">☀️ Diurno</div>
+      <div class="btn-shift active" id="shift-night" onclick="updateShift('Noturno')">🌙 Noturno</div>
     </div>
 
     <div class="nav-month">
-      <button onclick="navMonth(-1)">‹</button>
+      <button onclick="navMonth(-1)">&#8249;</button>
       <span id="monthDisplay"></span>
-      <button onclick="navMonth(1)">›</button>
+      <button onclick="navMonth(1)">&#8250;</button>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#f0f4ff;border:1px solid #c8d5f5"></div><span>Semana</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fff8e8;border:1px solid #f0d890"></div><span>Fim de semana</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff9800"></div><span>Diurno selecionado</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1e3c72"></div><span>Noturno selecionado</span></div>
     </div>
 
     <div class="calendar" id="calendar"></div>
@@ -282,7 +339,6 @@ input {
   </div>
 </div>
 
-<!-- Modal de conferência -->
 <div class="modal-overlay" id="textModal">
   <div class="modal">
     <div class="modal-header">
@@ -305,18 +361,30 @@ input {
 </div>
 
 <script>
-const STORAGE_KEY = 'silo_plantons_v1';
-const NAME_KEY    = 'silo_nome_v1';
-
+const NAME_KEY = 'silo_nome_v1';
 let date = new Date();
-let currentSelectedShift = 'Diurno';
+let currentSelectedShift = 'Noturno';
 let selectedRecords = new Map();
 
-const REF_DATE         = new Date(2026, 2, 22);
-const REF_DATE_NOTURNO = new Date(2026, 2, 29);
+function isWeekend(y, m, d) {
+  const dow = new Date(y, m, d).getDay();
+  return dow === 0 || dow === 6;
+}
 
-function saveData() {
-  // plantões não persistem entre sessões — intencionalmente vazio
+function getHours(y, m, d, shift) {
+  return isWeekend(y, m, d) ? 12 : 14;
+}
+
+function getHorario(y, m, d, shift) {
+  if (isWeekend(y, m, d)) {
+    return shift === 'Diurno' ? '07h-19h' : '19h-07h';
+  }
+  return '17h-07h';
+}
+
+function isShiftAllowed(y, m, d, shift) {
+  if (isWeekend(y, m, d)) return true;
+  return shift === 'Noturno';
 }
 
 function saveName() {
@@ -335,61 +403,66 @@ function updateShift(s) {
   render();
 }
 
-function calcH(y, m, d, s) {
-  if (s === 'Noturno') return 12;
-  const diff = Math.floor((new Date(y, m, d) - REF_DATE) / 86400000);
-  return (Math.abs(diff) % 2 === 0) ? 13 : 11;
-}
-
-function getHorarioNoturno(y, m, d) {
-  const diff = Math.floor((new Date(y, m, d) - REF_DATE_NOTURNO) / 86400000);
-  return (Math.abs(diff) % 2 === 0) ? { label: '18h-06h' } : { label: '19h-07h' };
-}
-
 function render() {
   const y = date.getFullYear(), m = date.getMonth();
   const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                   "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
   document.getElementById('monthDisplay').innerText = months[m] + ' ' + y;
 
-  const cal   = document.getElementById('calendar');
+  const cal = document.getElementById('calendar');
   cal.innerHTML = '';
+
+  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  days.forEach(d => {
+    const h = document.createElement('div');
+    h.className = 'day-header';
+    h.textContent = d;
+    cal.appendChild(h);
+  });
 
   const start = new Date(y, m, 1).getDay();
   const total = new Date(y, m + 1, 0).getDate();
 
-  for (let i = 0; i < start; i++) cal.innerHTML += '<div></div>';
+  for (let i = 0; i < start; i++) {
+    cal.appendChild(document.createElement('div'));
+  }
 
   for (let d = 1; d <= total; d++) {
-    const keyDay     = `${y}-${m}-${d}`;
-    const keyRecord  = `${keyDay}-${currentSelectedShift}`;
-    const hasDiurno  = selectedRecords.has(`${keyDay}-Diurno`);
-    const hasNoturno = selectedRecords.has(`${keyDay}-Noturno`);
+    const keyDay    = y + '-' + m + '-' + d;
+    const keyRecord = keyDay + '-' + currentSelectedShift;
+    const hasDiurno  = selectedRecords.has(keyDay + '-Diurno');
+    const hasNoturno = selectedRecords.has(keyDay + '-Noturno');
+    const we = isWeekend(y, m, d);
+    const allowed = isShiftAllowed(y, m, d, currentSelectedShift);
 
-    let cls = '';
+    let cls = we ? 'weekend' : 'weekday';
+    if (!allowed) cls += ' not-applicable';
     if (hasDiurno && hasNoturno) cls = 'selected-Ambos';
     else if (hasDiurno)          cls = 'selected-Diurno';
     else if (hasNoturno)         cls = 'selected-Noturno';
 
-    const h = calcH(y, m, d, currentSelectedShift);
-    const horarioMini = currentSelectedShift === 'Noturno'
-      ? getHorarioNoturno(y, m, d).label
-      : (h === 13 ? '06h-19h' : '07h-18h');
+    const horas = getHours(y, m, d, currentSelectedShift);
+    const horario = getHorario(y, m, d, currentSelectedShift);
 
     const div = document.createElement('div');
-    div.className = `day ${cls}`;
-    div.innerHTML = `<b>${d}</b><span class="hr-label">${currentSelectedShift === 'Diurno' ? h + 'h' : '12h'}</span><span class="horario">${horarioMini}</span>`;
+    div.className = 'day ' + cls;
+    div.innerHTML = '<b>' + d + '</b>' +
+      '<span class="hr-label">' + (allowed ? horas + 'h' : '—') + '</span>' +
+      '<span class="horario">' + (allowed ? horario : '') + '</span>';
 
-    div.onclick = () => {
-      if (selectedRecords.has(keyRecord)) {
-        selectedRecords.delete(keyRecord);
-      } else {
-        selectedRecords.set(keyRecord, { d, m, y, h, s: currentSelectedShift });
-      }
-      saveData();
-      render();
-      updateTotal();
-    };
+    if (allowed) {
+      div.onclick = (function(kR, dd, mm, yy, sh) {
+        return function() {
+          if (selectedRecords.has(kR)) {
+            selectedRecords.delete(kR);
+          } else {
+            selectedRecords.set(kR, { d: dd, m: mm, y: yy, h: getHours(yy, mm, dd, sh), s: sh });
+          }
+          render();
+          updateTotal();
+        };
+      })(keyRecord, d, m, y, currentSelectedShift);
+    }
 
     cal.appendChild(div);
   }
@@ -421,34 +494,31 @@ function buildMessage() {
   const sorted = getSorted();
 
   let totalH = 0;
-  let txt = `📋 *RELATÓRIO DE PLANTÕES*\n`;
-  txt += `🏢 Posto: SILO\n`;
-  txt += `👤 Segurança: ${name}\n`;
-  txt += `📅 Referência: ${ref}\n`;
-  txt += `─────────────────────────\n`;
+  let txt = '📋 *RELATÓRIO DE PLANTÕES*\n';
+  txt += '🏢 Posto: SILO\n';
+  txt += '👤 Segurança: ' + name + '\n';
+  txt += '📅 Referência: ' + ref + '\n';
+  txt += '─────────────────────────\n';
 
-  sorted.forEach(i => {
+  sorted.forEach(function(i) {
     const dt     = new Date(i.y, i.m, i.d);
     const diaSem = dt.toLocaleDateString('pt-BR', { weekday: 'short' })
                      .replace('.','').replace('-feira','');
-    const data   = `${i.d.toString().padStart(2,'0')}/${(i.m+1).toString().padStart(2,'0')}`;
+    const data   = String(i.d).padStart(2,'0') + '/' + String(i.m+1).padStart(2,'0');
     const icon   = i.s === 'Diurno' ? '☀️' : '🌙';
-    const horario = i.s === 'Noturno'
-      ? getHorarioNoturno(i.y, i.m, i.d).label.replace('-', '–')
-      : (i.h === 13 ? '06h–19h' : '07h–18h');
-
-    txt += `${icon} ${data} (${diaSem}) | ${i.s} | ${horario} | *${i.h}h*\n`;
+    const horario = getHorario(i.y, i.m, i.d, i.s);
+    txt += icon + ' ' + data + ' (' + diaSem + ') | ' + i.s + ' | ' + horario + ' | *' + i.h + 'h*\n';
     totalH += i.h;
   });
 
-  txt += `─────────────────────────\n`;
-  txt += `⏱️ *TOTAL: ${totalH} HORAS*`;
+  txt += '─────────────────────────\n';
+  txt += '⏱️ *TOTAL: ' + totalH + ' HORAS*';
   return txt;
 }
 
 function openModal() {
   if (selectedRecords.size === 0) {
-    alert("Selecione os plantões primeiro!");
+    alert('Selecione os plantões primeiro!');
     return;
   }
   document.getElementById('txtOutput').value = buildMessage();
@@ -461,13 +531,19 @@ function closeModal() {
 
 function sendWhatsApp() {
   const msg = document.getElementById('txtOutput').value;
-  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
 
 document.getElementById('userName').addEventListener('input', saveName);
 loadName();
-updateShift('Diurno');
+render();
 updateTotal();
 </script>
 </body>
 </html>
+HTMLEOF
+echo "OK"
+Saída
+
+OK
+Concluído
