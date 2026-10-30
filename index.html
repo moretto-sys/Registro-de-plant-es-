@@ -2,75 +2,84 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Registro Silo</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body {
-  height: 100%;
+html { font-size: 16px; }
+body {
   font-family: 'Segoe UI', sans-serif;
   background: #1a2a6c;
   color: #333;
-  overflow: hidden;
-}
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
+  min-height: 100dvh;
 }
 .container {
   width: 100%;
   max-width: 480px;
-  height: 100dvh;
-  height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
   background: white;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 .header {
   background: #1e3c72;
   color: white;
-  padding: 10px 14px 8px;
+  padding: 14px 16px 12px;
   text-align: center;
+  position: relative;
   flex-shrink: 0;
 }
-.header h2 { font-size: 17px; margin-bottom: 1px; }
-.header p { font-size: 11px; opacity: 0.85; }
+.header h2 { font-size: 18px; margin-bottom: 2px; }
+.header p { font-size: 12px; opacity: 0.85; }
+.btn-gear {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.btn-gear:active { background: rgba(255,255,255,0.35); }
 .content {
-  padding: 8px 12px 10px;
+  padding: 12px 14px 20px;
   flex: 1;
-  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 }
 label {
   display: block;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
   font-weight: bold;
-  font-size: 11.5px;
+  font-size: 14px;
   color: #1e3c72;
 }
 input {
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border: 2px solid #ddd;
   border-radius: 8px;
-  margin-bottom: 8px;
-  font-size: 14px;
+  margin-bottom: 12px;
+  font-size: 16px;
 }
+input[type="time"] { min-height: 44px; }
 .shift-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 .btn-shift {
-  padding: 8px;
+  padding: 9px 4px;
   border: 2px solid #ddd;
   border-radius: 8px;
   text-align: center;
@@ -78,150 +87,146 @@ input {
   background: #f9f9f9;
   font-weight: bold;
   font-size: 13px;
+  color: #333;
 }
 .btn-shift.active { border-color: #1e3c72; background: #1e3c72; color: white; }
-.btn-shift.disabled-shift {
-  opacity: 0.35;
-  cursor: not-allowed;
-  pointer-events: none;
-}
 .nav-month {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #eee;
-  padding: 6px 10px;
+  padding: 7px 10px;
   border-radius: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   flex-shrink: 0;
 }
-.nav-month span { font-weight: bold; font-size: 14px; }
+.nav-month span { font-weight: bold; font-size: 15px; }
 .nav-month button {
   background: #1e3c72;
   color: white;
   border: none;
-  padding: 4px 14px;
+  padding: 6px 16px;
   border-radius: 4px;
   font-weight: bold;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
 }
 .legend {
   display: flex;
-  gap: 8px;
-  margin-bottom: 6px;
-  font-size: 9.5px;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 11px;
   flex-wrap: wrap;
   flex-shrink: 0;
 }
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: 3px;
   text-align: center;
-  margin-bottom: 8px;
-  flex-shrink: 1;
-  min-height: 0;
+  margin-bottom: 10px;
 }
 .day-header {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: bold;
   color: #888;
-  padding: 2px 0;
+  padding: 3px 0;
   text-align: center;
 }
 .day {
   aspect-ratio: 1;
   border: 1px solid #eee;
-  border-radius: 5px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 11px;
   cursor: pointer;
-  line-height: 1.1;
+  line-height: 1.15;
   padding: 1px 0;
   min-height: 0;
   position: relative;
+  overflow: hidden;
 }
-.day b { font-size: 11px; }
-.day .hr-label { font-size: 7px; opacity: 0.9; }
-.day .horario  { font-size: 6px; opacity: 0.85; letter-spacing: -0.3px; }
+.day b { font-size: 12px; }
+.day .hr-label { font-size: 8px; opacity: 0.95; font-weight: bold; }
+.day .horario { font-size: 7px; opacity: 0.9; letter-spacing: -0.3px; white-space: nowrap; }
 .day.weekday { background: #f0f4ff; border-color: #c8d5f5; }
 .day.weekend { background: #fff8e8; border-color: #f0d890; }
-.day.not-applicable { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
-.day.selected-Diurno  { background: #ff9800; color: white; font-weight: bold; border-color: #e68900; }
-.day.selected-Noturno { background: #1e3c72; color: white; font-weight: bold; border-color: #152d56; }
-.day.selected-Ambos   { background: linear-gradient(135deg, #ff9800 50%, #1e3c72 50%); color: white; font-weight: bold; }
+.day.blank { visibility: hidden; pointer-events: none; }
+.day.today { box-shadow: inset 0 0 0 2px #ff9800; }
+.day.selected-Diurno { background: #1e3c72; color: white; font-weight: bold; }
+.day.selected-Noturno { background: #ff9800; color: white; font-weight: bold; }
 .total-box {
   background: #f4f4f4;
-  padding: 9px;
+  padding: 12px;
   border-radius: 10px;
   text-align: center;
-  font-size: 14px;
+  font-size: 15px;
   border-left: 6px solid #1e3c72;
-  margin-bottom: 8px;
-  flex-shrink: 0;
+  margin-bottom: 10px;
 }
+.total-box small { display: block; font-size: 11px; color: #777; margin-top: 3px; }
 .info-box {
   background: #e8f0fe;
-  padding: 7px 10px;
+  padding: 9px 11px;
   border-radius: 8px;
-  font-size: 10.5px;
+  font-size: 12px;
   color: #1e3c72;
-  margin-bottom: 8px;
-  line-height: 1.4;
-  flex-shrink: 0;
+  margin-bottom: 10px;
+  line-height: 1.45;
 }
-.info-box b { display: block; margin-bottom: 2px; font-size: 11.5px; }
+.info-box b { display: block; margin-bottom: 3px; font-size: 13px; }
 .btn-main {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   background: #25D366;
   color: white;
   border: none;
   border-radius: 10px;
   font-weight: bold;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  flex-shrink: 0;
+  margin-bottom: 10px;
 }
 .btn-main:active { background: #1ebe5a; }
+.btn-secondary {
+  width: 100%;
+  padding: 11px;
+  background: #eee;
+  color: #a33;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
 .modal-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.65);
-  z-index: 1000;
+  background: rgba(0,0,0,0.6);
+  z-index: 100;
   align-items: flex-end;
   justify-content: center;
 }
 .modal-overlay.open { display: flex; }
 .modal {
   background: white;
-  border-radius: 18px 18px 0 0;
   width: 100%;
   max-width: 480px;
-  max-height: 95dvh;
+  max-height: 92dvh;
+  border-radius: 18px 18px 0 0;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -6px 30px rgba(0,0,0,0.3);
+  overflow: hidden;
 }
 .modal-header {
   background: #1e3c72;
@@ -230,55 +235,66 @@ input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 18px 18px 0 0;
   flex-shrink: 0;
 }
-.modal-header span { font-weight: bold; font-size: 14px; }
+.modal-header span { font-weight: bold; font-size: 15px; }
 .modal-close {
   background: none;
   border: none;
   color: white;
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
   line-height: 1;
   padding: 2px 6px;
 }
 .modal-body {
-  padding: 12px;
+  padding: 14px;
   flex: 1;
-  overflow: hidden;
-  display: flex;
-  min-height: 40dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
+.modal-body h3 {
+  font-size: 14px;
+  color: #1e3c72;
+  margin: 10px 0 6px;
+}
+.modal-body h3:first-child { margin-top: 0; }
+.time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.time-row label { font-size: 12.5px; margin-bottom: 4px; }
+.time-row input { margin-bottom: 6px; }
 .txt-output {
   width: 100%;
-  flex: 1;
+  min-height: 220px;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 10px;
   font-family: monospace;
   font-size: 13px;
-  resize: none;
+  resize: vertical;
   color: #222;
   background: #fafafa;
   line-height: 1.6;
-  min-height: 100%;
 }
 .modal-footer {
-  padding: 8px 12px 16px;
+  padding: 10px 14px 20px;
   display: flex;
   gap: 8px;
   flex-shrink: 0;
 }
 .btn-whatsapp {
   flex: 1;
-  padding: 12px;
+  padding: 13px;
   background: #25D366;
   color: white;
   border: none;
   border-radius: 10px;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -288,265 +304,376 @@ input {
 .btn-whatsapp:active { background: #1ebe5a; }
 .btn-close-modal {
   flex: 1;
-  padding: 12px;
+  padding: 13px;
   background: #eee;
   color: #333;
   border: none;
   border-radius: 10px;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
+}
+.btn-save-cfg {
+  width: 100%;
+  padding: 13px;
+  background: #1e3c72;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+.btn-reset-cfg {
+  width: 100%;
+  padding: 11px;
+  background: #eee;
+  color: #a33;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 8px;
 }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
+    <button class="btn-gear" onclick="openSettings()" title="Configurar horários">⚙️</button>
     <h2>Posto Silo</h2>
-    <p>Controle de Plantão</p>
+    <p>Registro de Plantão</p>
   </div>
   <div class="content">
-    <label>Nome do Segurança</label>
-    <input type="text" id="userName" placeholder="Coloque seu nome aqui">
+    <label for="nomeInput">Nome do Funcionário</label>
+    <input type="text" id="nomeInput" placeholder="Digite seu nome" oninput="saveNome()">
 
-    <div class="info-box">
-      <b>📋 Regras de Horário</b>
-      🗓️ <b>Semana:</b> apenas Noturno — 17h às 07h (14h)<br>
-      ☀️ <b>Fim de semana Diurno:</b> 07h às 19h (12h)<br>
-      🌙 <b>Fim de semana Noturno:</b> 19h às 07h (12h)
-    </div>
-
-    <label>Turno para Seleção</label>
+    <label>Plantão a marcar</label>
     <div class="shift-grid">
-      <div class="btn-shift" id="shift-day"   onclick="updateShift('Diurno')">☀️ Diurno</div>
-      <div class="btn-shift active" id="shift-night" onclick="updateShift('Noturno')">🌙 Noturno</div>
+      <div class="btn-shift" id="btn-Diurno" onclick="selectShift('Diurno')">☀️ Diurno<br><span id="lbl-Diurno"></span></div>
+      <div class="btn-shift" id="btn-Noturno" onclick="selectShift('Noturno')">🌙 Noturno<br><span id="lbl-Noturno"></span></div>
     </div>
 
     <div class="nav-month">
-      <button onclick="navMonth(-1)">&#8249;</button>
-      <span id="monthDisplay"></span>
-      <button onclick="navMonth(1)">&#8250;</button>
+      <button onclick="changeMonth(-1)">‹</button>
+      <span id="monthLabel"></span>
+      <button onclick="changeMonth(1)">›</button>
     </div>
 
     <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#f0f4ff;border:1px solid #c8d5f5"></div><span>Semana</span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#fff8e8;border:1px solid #f0d890"></div><span>Fim de semana</span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ff9800"></div><span>Diurno selecionado</span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#1e3c72"></div><span>Noturno selecionado</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1e3c72"></div> Diurno</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff9800"></div> Noturno</div>
     </div>
 
     <div class="calendar" id="calendar"></div>
 
-    <div class="total-box">Total Acumulado: <b id="totalH">0</b> horas</div>
+    <div class="total-box">
+      Total Acumulado: <b id="totalH">0</b> horas
+      <small id="totalDetail"></small>
+    </div>
+
+    <div class="info-box">
+      <b>Como usar</b>
+      1. Toque no ⚙️ para definir os horários de início e término de cada plantão.<br>
+      2. Escolha o tipo de plantão acima (Diurno ou Noturno).<br>
+      3. Toque nos dias do calendário para marcar ou desmarcar.
+    </div>
 
     <button class="btn-main" onclick="openModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white">
-        <path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.19-1.58A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.79 0-3.55-.48-5.09-1.38l-.36-.22-3.78.97.99-3.68-.24-.38A9.94 9.94 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.94 9.94 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.42-7.37c-.3-.15-1.76-.87-2.03-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.68-1.62-.93-2.22-.24-.58-.49-.5-.68-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.7.25-1.3.17-1.41-.07-.12-.27-.2-.57-.35z"/>
-      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.19-1.58A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.79 0-3.55-.48-5.09-1.38l-.36-.22-3.78.97.99-3.68-.24-.38A9.94 9.94 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.94 9.94 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.42-7.37c-.3-.15-1.76-.87-2.03-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.68-1.62-.93-2.22-.24-.58-.49-.5-.68-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.7.25-1.3.17-1.41-.07-.12-.27-.2-.57-.35z"/></svg>
       Exportar Relatório
     </button>
+
+    <button class="btn-secondary" onclick="clearAll()">Limpar todos os registros</button>
   </div>
 </div>
 
-<div class="modal-overlay" id="textModal">
+<!-- Modal Relatório -->
+<div class="modal-overlay" id="modalReport">
   <div class="modal">
     <div class="modal-header">
-      <span>📋 Conferir Relatório</span>
-      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+      <span>Relatório do Mês</span>
+      <button class="modal-close" onclick="closeModal('modalReport')">✕</button>
     </div>
     <div class="modal-body">
       <textarea class="txt-output" id="txtOutput" readonly></textarea>
     </div>
     <div class="modal-footer">
       <button class="btn-whatsapp" onclick="sendWhatsApp()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white">
-          <path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.19-1.58A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.79 0-3.55-.48-5.09-1.38l-.36-.22-3.78.97.99-3.68-.24-.38A9.94 9.94 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.94 9.94 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.42-7.37c-.3-.15-1.76-.87-2.03-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.68-1.62-.93-2.22-.24-.58-.49-.5-.68-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.7.25-1.3.17-1.41-.07-.12-.27-.2-.57-.35z"/>
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.19-1.58A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.79 0-3.55-.48-5.09-1.38l-.36-.22-3.78.97.99-3.68-.24-.38A9.94 9.94 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.94 9.94 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.42-7.37c-.3-.15-1.76-.87-2.03-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.68-1.62-.93-2.22-.24-.58-.49-.5-.68-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.7.25-1.3.17-1.41-.07-.12-.27-.2-.57-.35z"/></svg>
         Enviar WhatsApp
       </button>
-      <button class="btn-close-modal" onclick="closeModal()">Fechar</button>
+      <button class="btn-close-modal" onclick="closeModal('modalReport')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Configuração (Engrenagem) -->
+<div class="modal-overlay" id="modalSettings">
+  <div class="modal">
+    <div class="modal-header">
+      <span>⚙️ Horários dos Plantões</span>
+      <button class="modal-close" onclick="closeModal('modalSettings')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h3>☀️ Plantão Diurno</h3>
+      <div class="time-row">
+        <div>
+          <label for="cfgDStart">Início</label>
+          <input type="time" id="cfgDStart">
+        </div>
+        <div>
+          <label for="cfgDEnd">Término</label>
+          <input type="time" id="cfgDEnd">
+        </div>
+      </div>
+      <h3>🌙 Plantão Noturno</h3>
+      <div class="time-row">
+        <div>
+          <label for="cfgNStart">Início</label>
+          <input type="time" id="cfgNStart">
+        </div>
+        <div>
+          <label for="cfgNEnd">Término</label>
+          <input type="time" id="cfgNEnd">
+        </div>
+      </div>
+      <div class="info-box" style="margin-bottom:0">
+        Se o término for depois da meia-noite (ex.: 19:00 → 07:00), as horas são calculadas automaticamente virando o dia.
+      </div>
+      <button class="btn-save-cfg" onclick="saveConfig()">Salvar Horários</button>
+      <button class="btn-reset-cfg" onclick="resetConfig()">Restaurar padrão (07:00–19:00 / 19:00–07:00)</button>
     </div>
   </div>
 </div>
 
 <script>
-const NAME_KEY = 'silo_nome_v1';
-let date = new Date();
-let currentSelectedShift = 'Noturno';
-let selectedRecords = new Map();
+const CFG_KEY = 'siloConfigV2';
+const REC_KEY = 'siloRecordsV2';
+const NOME_KEY = 'siloNomeV2';
+const DEFAULT_CFG = {
+  Diurno:  { start: '07:00', end: '19:00' },
+  Noturno: { start: '19:00', end: '07:00' }
+};
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DIAS_SEMANA = ['D','S','T','Q','Q','S','S'];
 
-function isWeekend(y, m, d) {
-  const dow = new Date(y, m, d).getDay();
-  return dow === 0 || dow === 6;
-}
+let cfg = loadCfg();
+let records = loadRecords();
+let selectedShift = 'Diurno';
+const hoje = new Date();
+let viewYear = hoje.getFullYear();
+let viewMonth = hoje.getMonth();
 
-function getHours(y, m, d, shift) {
-  return isWeekend(y, m, d) ? 12 : 14;
-}
-
-function getHorario(y, m, d, shift) {
-  if (isWeekend(y, m, d)) {
-    return shift === 'Diurno' ? '07h-19h' : '19h-07h';
-  }
-  return '17h-07h';
-}
-
-function isShiftAllowed(y, m, d, shift) {
-  if (isWeekend(y, m, d)) return true;
-  return shift === 'Noturno';
-}
-
-function saveName() {
-  localStorage.setItem(NAME_KEY, document.getElementById('userName').value);
-}
-
-function loadName() {
-  const saved = localStorage.getItem(NAME_KEY);
-  if (saved) document.getElementById('userName').value = saved;
-}
-
-function updateShift(s) {
-  currentSelectedShift = s;
-  document.getElementById('shift-day').className   = 'btn-shift ' + (s === 'Diurno'  ? 'active' : '');
-  document.getElementById('shift-night').className = 'btn-shift ' + (s === 'Noturno' ? 'active' : '');
-  render();
-}
-
-function render() {
-  const y = date.getFullYear(), m = date.getMonth();
-  const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                  "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-  document.getElementById('monthDisplay').innerText = months[m] + ' ' + y;
-
-  const cal = document.getElementById('calendar');
-  cal.innerHTML = '';
-
-  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  days.forEach(d => {
-    const h = document.createElement('div');
-    h.className = 'day-header';
-    h.textContent = d;
-    cal.appendChild(h);
-  });
-
-  const start = new Date(y, m, 1).getDay();
-  const total = new Date(y, m + 1, 0).getDate();
-
-  for (let i = 0; i < start; i++) {
-    cal.appendChild(document.createElement('div'));
-  }
-
-  for (let d = 1; d <= total; d++) {
-    const keyDay    = y + '-' + m + '-' + d;
-    const keyRecord = keyDay + '-' + currentSelectedShift;
-    const hasDiurno  = selectedRecords.has(keyDay + '-Diurno');
-    const hasNoturno = selectedRecords.has(keyDay + '-Noturno');
-    const we = isWeekend(y, m, d);
-    const allowed = isShiftAllowed(y, m, d, currentSelectedShift);
-
-    let cls = we ? 'weekend' : 'weekday';
-    if (!allowed) cls += ' not-applicable';
-    if (hasDiurno && hasNoturno) cls = 'selected-Ambos';
-    else if (hasDiurno)          cls = 'selected-Diurno';
-    else if (hasNoturno)         cls = 'selected-Noturno';
-
-    const horas = getHours(y, m, d, currentSelectedShift);
-    const horario = getHorario(y, m, d, currentSelectedShift);
-
-    const div = document.createElement('div');
-    div.className = 'day ' + cls;
-    div.innerHTML = '<b>' + d + '</b>' +
-      '<span class="hr-label">' + (allowed ? horas + 'h' : '—') + '</span>' +
-      '<span class="horario">' + (allowed ? horario : '') + '</span>';
-
-    if (allowed) {
-      div.onclick = (function(kR, dd, mm, yy, sh) {
-        return function() {
-          if (selectedRecords.has(kR)) {
-            selectedRecords.delete(kR);
-          } else {
-            selectedRecords.set(kR, { d: dd, m: mm, y: yy, h: getHours(yy, mm, dd, sh), s: sh });
-          }
-          render();
-          updateTotal();
-        };
-      })(keyRecord, d, m, y, currentSelectedShift);
+function loadCfg() {
+  try {
+    const raw = localStorage.getItem(CFG_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (p && p.Diurno && p.Noturno) return p;
     }
+  } catch (e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_CFG));
+}
+function saveCfgStore() { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
+function loadRecords() {
+  try { return JSON.parse(localStorage.getItem(REC_KEY)) || {}; } catch (e) { return {}; }
+}
+function saveRecordsStore() { localStorage.setItem(REC_KEY, JSON.stringify(records)); }
+function saveNome() { localStorage.setItem(NOME_KEY, document.getElementById('nomeInput').value); }
 
-    cal.appendChild(div);
+function toMin(t) {
+  const parts = (t || '00:00').split(':');
+  return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
+}
+// Duração em horas; se término <= início, assume virada da meia-noite
+function durHours(start, end) {
+  let d = toMin(end) - toMin(start);
+  if (d <= 0) d += 1440;
+  return d / 60;
+}
+function shiftHours(shift) {
+  const c = cfg[shift];
+  if (!c || !c.start || !c.end) return 0;
+  return durHours(c.start, c.end);
+}
+function dayHours(rec) {
+  if (rec === 'Diurno') return shiftHours('Diurno');
+  if (rec === 'Noturno') return shiftHours('Noturno');
+  return 0;
+}
+function fmtHorario(shift) {
+  const c = cfg[shift];
+  return c.start + '-' + c.end;
+}
+function keyOf(y, m, d) {
+  return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+}
+
+function selectShift(s) {
+  selectedShift = s;
+  renderShiftButtons();
+}
+function renderShiftButtons() {
+  ['Diurno', 'Noturno'].forEach(function (s) {
+    const btn = document.getElementById('btn-' + s);
+    btn.classList.toggle('active', selectedShift === s);
+  });
+  document.getElementById('lbl-Diurno').textContent = fmtHorario('Diurno');
+  document.getElementById('lbl-Noturno').textContent = fmtHorario('Noturno');
+}
+
+function changeMonth(delta) {
+  viewMonth += delta;
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('monthLabel').textContent = MESES[viewMonth] + '/' + viewYear;
+  const cal = document.getElementById('calendar');
+  let html = '';
+  for (let i = 0; i < 7; i++) html += '<div class="day-header">' + DIAS_SEMANA[i] + '</div>';
+
+  const first = new Date(viewYear, viewMonth, 1);
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const startCol = first.getDay();
+  const todayKey = keyOf(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+
+  for (let b = 0; b < startCol; b++) html += '<div class="day blank"></div>';
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = keyOf(viewYear, viewMonth, d);
+    const dow = new Date(viewYear, viewMonth, d).getDay();
+    const rec = records[key];
+    const cls = ['day', (dow === 0 || dow === 6) ? 'weekend' : 'weekday'];
+    if (rec) cls.push('selected-' + rec);
+    if (key === todayKey) cls.push('today');
+    let inner = '<b>' + d + '</b>';
+    if (rec === 'Diurno') {
+      inner += '<span class="hr-label">Dia</span><span class="horario">' + fmtHorario('Diurno') + '</span>';
+    } else if (rec === 'Noturno') {
+      inner += '<span class="hr-label">Noite</span><span class="horario">' + fmtHorario('Noturno') + '</span>';
+    }
+    html += '<div class="' + cls.join(' ') + '" onclick="toggleDay(\'' + key + '\')">' + inner + '</div>';
   }
+  cal.innerHTML = html;
+  renderTotals();
 }
 
-function updateTotal() {
-  let t = 0;
-  selectedRecords.forEach(v => t += v.h);
-  document.getElementById('totalH').innerText = t;
+function toggleDay(key) {
+  if (records[key] === selectedShift) {
+    delete records[key];
+  } else {
+    records[key] = selectedShift;
+  }
+  saveRecordsStore();
+  renderCalendar();
 }
 
-function navMonth(v) {
-  date.setMonth(date.getMonth() + v);
-  render();
+function renderTotals() {
+  let total = 0, nD = 0, nN = 0;
+  for (const k in records) {
+    total += dayHours(records[k]);
+    if (records[k] === 'Diurno') nD++;
+    else if (records[k] === 'Noturno') nN++;
+  }
+  document.getElementById('totalH').textContent = Number(total.toFixed(2));
+  document.getElementById('totalDetail').textContent =
+    nD + ' diurno(s) · ' + nN + ' noturno(s)';
 }
 
-function getSorted() {
-  return Array.from(selectedRecords.values()).sort((a, b) => {
-    if (a.y !== b.y) return a.y - b.y;
-    if (a.m !== b.m) return a.m - b.m;
-    if (a.d !== b.d) return a.d - b.d;
-    return a.s === 'Diurno' ? -1 : 1;
+// ---------- Configuração (Engrenagem) ----------
+function openSettings() {
+  document.getElementById('cfgDStart').value = cfg.Diurno.start;
+  document.getElementById('cfgDEnd').value = cfg.Diurno.end;
+  document.getElementById('cfgNStart').value = cfg.Noturno.start;
+  document.getElementById('cfgNEnd').value = cfg.Noturno.end;
+  document.getElementById('modalSettings').classList.add('open');
+}
+function saveConfig() {
+  const dS = document.getElementById('cfgDStart').value;
+  const dE = document.getElementById('cfgDEnd').value;
+  const nS = document.getElementById('cfgNStart').value;
+  const nE = document.getElementById('cfgNEnd').value;
+  if (!dS || !dE || !nS || !nE) { alert('Preencha todos os horários.'); return; }
+  cfg = { Diurno: { start: dS, end: dE }, Noturno: { start: nS, end: nE } };
+  saveCfgStore();
+  renderShiftButtons();
+  renderCalendar();
+  closeModal('modalSettings');
+}
+function resetConfig() {
+  cfg = JSON.parse(JSON.stringify(DEFAULT_CFG));
+  saveCfgStore();
+  document.getElementById('cfgDStart').value = cfg.Diurno.start;
+  document.getElementById('cfgDEnd').value = cfg.Diurno.end;
+  document.getElementById('cfgNStart').value = cfg.Noturno.start;
+  document.getElementById('cfgNEnd').value = cfg.Noturno.end;
+  renderShiftButtons();
+  renderCalendar();
+}
+
+// ---------- Relatório ----------
+function buildReport() {
+  const nome = document.getElementById('nomeInput').value.trim() || '(sem nome)';
+  let total = 0;
+  const linhas = [];
+  for (const k in records) {
+    total += dayHours(records[k]);
+  }
+  const keys = Object.keys(records).sort();
+  keys.forEach(function (k) {
+    const p = k.split('-');
+    const rec = records[k];
+    let desc = '';
+    if (rec === 'Diurno') desc = 'Diurno (' + cfg.Diurno.start + ' às ' + cfg.Diurno.end + ')';
+    else if (rec === 'Noturno') desc = 'Noturno (' + cfg.Noturno.start + ' às ' + cfg.Noturno.end + ')';
+    else desc = 'Diurno + Noturno (' + cfg.Diurno.start + '-' + cfg.Diurno.end + ' e ' + cfg.Noturno.start + '-' + cfg.Noturno.end + ')';
+    linhas.push(p[2] + '/' + p[1] + ' - ' + desc + ' - ' + Number(dayHours(rec).toFixed(2)) + 'h');
   });
-}
-
-function buildMessage() {
-  const name   = document.getElementById('userName').value.trim() || '—';
-  const ref    = document.getElementById('monthDisplay').innerText;
-  const sorted = getSorted();
-
-  let totalH = 0;
-  let txt = '📋 *RELATÓRIO DE PLANTÕES*\n';
-  txt += '🏢 Posto: SILO\n';
-  txt += '👤 Segurança: ' + name + '\n';
-  txt += '📅 Referência: ' + ref + '\n';
-  txt += '─────────────────────────\n';
-
-  sorted.forEach(function(i) {
-    const dt     = new Date(i.y, i.m, i.d);
-    const diaSem = dt.toLocaleDateString('pt-BR', { weekday: 'short' })
-                     .replace('.','').replace('-feira','');
-    const data   = String(i.d).padStart(2,'0') + '/' + String(i.m+1).padStart(2,'0');
-    const icon   = i.s === 'Diurno' ? '☀️' : '🌙';
-    const horario = getHorario(i.y, i.m, i.d, i.s);
-    txt += icon + ' ' + data + ' (' + diaSem + ') | ' + i.s + ' | ' + horario + ' | *' + i.h + 'h*\n';
-    totalH += i.h;
-  });
-
-  txt += '─────────────────────────\n';
-  txt += '⏱️ *TOTAL: ' + totalH + ' HORAS*';
+  let txt = 'REGISTRO DE PLANTÃO - POSTO SILO\n';
+  txt += 'Nome: ' + nome + '\n';
+  txt += '--------------------------------\n';
+  txt += linhas.join('\n');
+  txt += '\n--------------------------------\n';
+  txt += 'TOTAL ACUMULADO: ' + Number(total.toFixed(2)) + ' horas';
   return txt;
 }
-
 function openModal() {
-  if (selectedRecords.size === 0) {
-    alert('Selecione os plantões primeiro!');
-    return;
-  }
-  document.getElementById('txtOutput').value = buildMessage();
-  document.getElementById('textModal').classList.add('open');
+  document.getElementById('txtOutput').value = buildReport();
+  document.getElementById('modalReport').classList.add('open');
 }
-
-function closeModal() {
-  document.getElementById('textModal').classList.remove('open');
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
 }
-
 function sendWhatsApp() {
-  const msg = document.getElementById('txtOutput').value;
-  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  const txt = document.getElementById('txtOutput').value;
+  window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+}
+function clearAll() {
+  if (confirm('Apagar TODOS os dias marcados? Os horários configurados são mantidos.')) {
+    records = {};
+    saveRecordsStore();
+    renderCalendar();
+  }
 }
 
-document.getElementById('userName').addEventListener('input', saveName);
-loadName();
-render();
-updateTotal();
+// Fechar modal tocando fora
+document.querySelectorAll('.modal-overlay').forEach(function (ov) {
+  ov.addEventListener('click', function (e) {
+    if (e.target === ov) ov.classList.remove('open');
+  });
+});
+
+// Init
+document.getElementById('nomeInput').value = localStorage.getItem(NOME_KEY) || '';
+renderShiftButtons();
+renderCalendar();
 </script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
